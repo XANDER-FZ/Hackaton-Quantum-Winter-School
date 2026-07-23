@@ -271,3 +271,287 @@ gateButtons.forEach((button) => {
 });
 
 // ---------------------------------------
+
+// ======================================================
+// CONEXIÓN CON EL MOTOR CUÁNTICO DE PYTHON
+// ======================================================
+
+let activeGameGate = "Medir";
+let pendingTiles = [];
+let currentGameState = null;
+
+const boardElement = document.querySelector(".board-grid");
+const attemptsCounter = document.getElementById("attempts-counter");
+const riskIndicator = document.getElementById("risk-indicator");
+
+// Reemplaza las 36 celdas de maqueta por un tablero real 3x3.
+boardElement.innerHTML = "";
+boardElement.style.gridTemplateColumns = "repeat(3, minmax(0, 1fr))";
+
+const gameCells = [];
+
+for (let tile = 0; tile < 9; tile++) {
+  const cell = document.createElement("button");
+
+  cell.type = "button";
+  cell.className = "cell";
+  cell.dataset.tile = tile;
+
+  cell.style.color = "#e0f7ff";
+  cell.style.fontWeight = "bold";
+  cell.style.cursor = "pointer";
+  cell.style.fontSize = "0.9rem";
+
+  cell.addEventListener("click", () => {
+    handleCellClick(tile);
+  });
+
+  boardElement.appendChild(cell);
+  gameCells.push(cell);
+}
+
+
+// ------------------------------------------------------
+// API
+// ------------------------------------------------------
+
+async function apiRequest(url, options = {}) {
+  const response = await fetch(url, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+    ...options,
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      data.detail || "Error del motor cuántico."
+    );
+  }
+
+  return data;
+}
+
+
+async function refreshGame() {
+  const state = await apiRequest("/api/state");
+  renderGame(state);
+}
+
+
+function renderGame(state) {
+  currentGameState = state;
+
+  state.cells.forEach((cellState, tile) => {
+    const cell = gameCells[tile];
+
+    if (cellState.revealed) {
+      if (cellState.is_mine) {
+        cell.textContent = "💥";
+        cell.style.background = "rgba(255, 50, 70, 0.75)";
+      } else {
+        cell.textContent = "🛡️";
+        cell.style.background = "rgba(60, 252, 163, 0.35)";
+      }
+
+      cell.disabled = true;
+    } else {
+      cell.textContent =
+        `${(cellState.probability * 100).toFixed(0)}%`;
+
+      cell.style.background =
+        "radial-gradient(circle at 30% 0%, " +
+        "rgba(92, 225, 230, 0.18), " +
+        "rgba(5, 18, 35, 0.9))";
+
+      cell.disabled = false;
+    }
+
+    cell.style.outline = pendingTiles.includes(tile)
+      ? "3px solid #3cfca3"
+      : "none";
+  });
+
+  attemptsCounter.textContent = state.turn;
+  riskIndicator.textContent =
+    `${state.remaining_mines} minas`;
+
+  if (state.game_over) {
+    gateDescription.textContent = state.game_won
+      ? "¡Victoria! Revelaste todas las casillas seguras."
+      : "Fin del juego: encontraste una mina.";
+  } else if (!state.first_click_done) {
+    gateDescription.textContent =
+      "Selecciona cualquier casilla. El primer clic es seguro.";
+  } else if (state.power_used) {
+    gateDescription.textContent =
+      "Poder utilizado. Ahora debes medir una casilla.";
+  }
+}
+
+
+// ------------------------------------------------------
+// SELECCIÓN DE COMPUERTA
+// ------------------------------------------------------
+
+gateButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    activeGameGate = button.dataset.gate;
+    pendingTiles = [];
+
+    if (currentGameState) {
+      renderGame(currentGameState);
+    }
+  });
+});
+
+
+function requiredTileCount(gate) {
+  if (gate === "H" || gate === "X") {
+    return 2;
+  }
+
+  return 1;
+}
+
+
+// ------------------------------------------------------
+// CLIC EN CASILLA
+// ------------------------------------------------------
+
+async function handleCellClick(tile) {
+  try {
+    if (!currentGameState) {
+      return;
+    }
+
+    if (currentGameState.game_over) {
+      return;
+    }
+
+    // El primer clic siempre mide automáticamente.
+    if (!currentGameState.first_click_done) {
+      const state = await apiRequest(
+        "/api/measure",
+        {
+          method: "POST",
+          body: JSON.stringify({ tile }),
+        }
+      );
+
+      renderGame(state);
+      return;
+    }
+
+    // Medición normal.
+    if (activeGameGate === "Medir") {
+      const state = await apiRequest(
+        "/api/measure",
+        {
+          method: "POST",
+          body: JSON.stringify({ tile }),
+        }
+      );
+
+      renderGame(state);
+
+      if (state.game_over) {
+        setTimeout(() => {
+          alert(
+            state.game_won
+              ? "¡Victoria cuántica!"
+              : "💥 Encontraste una mina."
+          );
+        }, 100);
+      }
+
+      return;
+    }
+
+    // Evitar seleccionar dos veces la misma casilla.
+    if (pendingTiles.includes(tile)) {
+      pendingTiles = pendingTiles.filter(
+        selectedTile => selectedTile !== tile
+      );
+
+      renderGame(currentGameState);
+      return;
+    }
+
+    pendingTiles.push(tile);
+    renderGame(currentGameState);
+
+    const needed = requiredTileCount(
+      activeGameGate
+    );
+
+    if (pendingTiles.length < needed) {
+      gateDescription.textContent =
+        `Selecciona ${needed - pendingTiles.length} ` +
+        "casilla adicional.";
+      return;
+    }
+
+    const state = await apiRequest(
+      "/api/gate",
+      {
+        method: "POST",
+        body: JSON.stringify({
+          gate: activeGameGate,
+          tiles: pendingTiles,
+        }),
+      }
+    );
+
+    pendingTiles = [];
+
+    // Después de usar un poder, cambiar automáticamente a medir.
+    activeGameGate = "Medir";
+    selectGate("Medir");
+
+    renderGame(state);
+
+  } catch (error) {
+    pendingTiles = [];
+
+    if (currentGameState) {
+      renderGame(currentGameState);
+    }
+
+    alert(error.message);
+  }
+}
+
+
+// ------------------------------------------------------
+// START CREA UNA PARTIDA NUEVA
+// ------------------------------------------------------
+
+startBtn.addEventListener("click", async () => {
+  try {
+    const state = await apiRequest(
+      "/api/new",
+      {
+        method: "POST",
+      }
+    );
+
+    activeGameGate = "Medir";
+    pendingTiles = [];
+
+    selectGate("Medir");
+    renderGame(state);
+
+  } catch (error) {
+    alert(error.message);
+  }
+});
+
+
+refreshGame().catch(error => {
+  console.error(error);
+  gateDescription.textContent =
+    "No se pudo conectar con el motor Python.";
+});
