@@ -7,7 +7,7 @@
 // 3. Volver de la zona de juego al menú.
 // 4. Marcar visualmente qué compuerta fue seleccionada.
 // 5. Cambiar el texto explicativo según la compuerta elegida.
-// NO incluye lógica real de minas ni computación cuántica (eso lo implementarán tus compañeros).
+// NO incluye lógica real de minas ni computación cuántica (falta unir).
 // =======================================
 
 // ---------------------------------------
@@ -153,6 +153,73 @@ conceptosBtn.addEventListener("click", () => {
   openModal(conceptosModal);
 });
 
+// ============================
+// SLIDER DE CONCEPTOS BÁSICOS
+// ============================
+
+const conceptosData = [
+  {
+    title: "Qubit",
+    description: "Unidad básica de información cuántica. Puede representar 0, 1 o una combinación antes de medirse."
+  },
+  {
+    title: "Superposición",
+    description: "Un qubit puede estar en varias posibilidades al mismo tiempo hasta que se realiza una medición."
+  },
+  {
+    title: "Entrelazamiento",
+    description: "Dos qubits pueden estar conectados de forma que sus resultados estén relacionados."
+  },
+  {
+    title: "Interferencia",
+    description: "Las probabilidades pueden reforzarse o cancelarse para favorecer ciertos resultados."
+  },
+  {
+    title: "Medición",
+    description: "La medición convierte un estado cuántico en un resultado clásico, como 0 o 1."
+  },
+  {
+    title: "Compuerta cuántica",
+    description: "Es una operación que transforma el estado de un qubit. Ejemplos: H, X, Y y Z."
+  }
+];
+
+let conceptoActual = 0;
+
+function actualizarConcepto() {
+  const title = document.getElementById("conceptTitle");
+  const description = document.getElementById("conceptDescription");
+  const counter = document.getElementById("conceptCounter");
+
+  if (!title || !description || !counter) return;
+
+  title.textContent = conceptosData[conceptoActual].title;
+  description.textContent = conceptosData[conceptoActual].description;
+  counter.textContent = `${conceptoActual + 1} / ${conceptosData.length}`;
+}
+
+document.addEventListener("click", (event) => {
+  if (event.target.id === "nextConcept") {
+    conceptoActual++;
+    if (conceptoActual >= conceptosData.length) {
+      conceptoActual = 0;
+    }
+    actualizarConcepto();
+  }
+
+  if (event.target.id === "prevConcept") {
+    conceptoActual--;
+    if (conceptoActual < 0) {
+      conceptoActual = conceptosData.length - 1;
+    }
+    actualizarConcepto();
+  }
+});
+
+
+
+
+
 // Botones que cierran modales (X y Cerrar)
 // Utilizamos data-close para identificar qué modal cerrar
 modalCloseButtons.forEach((button) => {
@@ -183,14 +250,3 @@ gateButtons.forEach((button) => {
 });
 
 // ---------------------------------------
-// Punto de extensión para tus compañeros
-// ---------------------------------------
-// Tus compañeros pueden usar estos elementos y eventos para conectar la lógica real:
-// - Las celdas del tablero (.cell) se pueden convertir en botones interactivos,
-//   leyendo su posición con índices.
-// - Pueden escuchar el gateName seleccionado desde selectGate()
-//   (por ejemplo, guardando la compuerta activa en una variable global).
-// - Pueden actualizar los indicadores "Intentos" y "Riesgo"
-//   modificando el DOM de attempts-counter y risk-indicator.
-// - En lugar de solo mostrar una maqueta, pueden regenerar el tablero dinámicamente
-//   con JavaScript, asignando minas y estados cuánticos por casilla.

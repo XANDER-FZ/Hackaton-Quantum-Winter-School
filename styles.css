@@ -1,5 +1,5 @@
 
-@import url('https://fonts.googleapis.com/css2?family=Audiowide&family=Orbitron:wght@600;700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
 
 /* ============================
@@ -92,7 +92,7 @@ body {
 
 /* Efecto de texto neón con glow, inspirado en técnicas clásicas de text-shadow.[web:9] */
 .game-title {
-  font-family: "Audiowide", "Orbitron", sans-serif;
+  font-family: "Press Start 2P", system-ui, sans-serif;
   font-size: clamp(2.8rem, 5.8vw, 5rem);
   letter-spacing: 0.10em;
   text-transform: uppercase;
@@ -199,8 +199,11 @@ body {
 
 /* Botón START más grande */
 .btn-start {
-  padding: 1.3rem 4.6rem;
-  font-size: 1.35rem;
+  padding: 1.6rem 5.5rem;
+  font-size: 1.6rem;
+  min-width: 320px;
+  font-family: "Press Start 2P", system-ui, sans-serif;
+
   background: transparent;
   color: #5ce1e6;
   border: 2px solid #5ce1e6;
@@ -327,6 +330,8 @@ body {
   font-size: 0.9rem;
   color: #b9ddff;
 }
+
+
 
 /* ============================
    TABLERO 6x6 (MAQUETA)
@@ -458,6 +463,78 @@ body {
 .gate-description {
   font-size: 0.85rem;
   color: #b9ddff;
+}
+
+/* ============================
+   SLIDER DE CONCEPTOS BÁSICOS
+   ============================ */
+
+.concept-slider {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.2rem;
+  min-height: 230px;
+}
+
+.concept-slide {
+  flex: 1;
+  text-align: center;
+  padding: 1.5rem;
+  border-radius: 1rem;
+  background: rgba(92, 225, 230, 0.06);
+  border: 1px solid rgba(92, 225, 230, 0.35);
+  box-shadow:
+    inset 0 0 18px rgba(92, 225, 230, 0.15),
+    0 0 18px rgba(178, 109, 255, 0.25);
+}
+
+.concept-slide h3 {
+  font-size: 1.25rem;
+  color: #3cfca3;
+  margin-bottom: 1rem;
+  text-shadow:
+    0 0 8px rgba(60, 252, 163, 0.9),
+    0 0 20px rgba(92, 225, 230, 0.8);
+}
+
+.concept-slide p {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: #d8f6ff;
+  margin-bottom: 1.2rem;
+}
+
+#conceptCounter {
+  display: inline-block;
+  font-size: 0.75rem;
+  color: #b26dff;
+  letter-spacing: 0.15em;
+}
+
+.slide-arrow {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: 2px solid #5ce1e6;
+  background: transparent;
+  color: #5ce1e6;
+  font-size: 2rem;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow:
+    0 0 12px rgba(92, 225, 230, 0.8),
+    inset 0 0 12px rgba(92, 225, 230, 0.2);
+  transition: 0.2s ease;
+}
+
+.slide-arrow:hover {
+  color: #3cfca3;
+  border-color: #3cfca3;
+  transform: scale(1.1);
+  box-shadow:
+    0 0 18px rgba(60, 252, 163, 0.9),
+    inset 0 0 16px rgba(60, 252, 163, 0.25);
 }
 
 /* ============================

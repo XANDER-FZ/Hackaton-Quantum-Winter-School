@@ -25,9 +25,6 @@
           <h1 class="game-title">
             Buscaminas <span class="title-highlight">Quaktico</span>
           </h1>
-          <p class="game-subtitle">
-            Explora el campo cuántico y evita minas mediante compuertas quánticas.
-          </p>
         </header>
 
         <!-- Zona central con botón START y patitos -->
@@ -187,16 +184,21 @@
         </button>
       </header>
 
-      <div class="modal-body">
-        <ul class="modal-list">
-          <li><strong>Qubit:</strong> unidad básica de información cuántica.</li>
-          <li><strong>Superposición:</strong> un qubit puede representar varias posibilidades antes de medirse.</li>
-          <li><strong>Entrelazamiento:</strong> dos qubits pueden estar correlacionados de forma cuántica.</li>
-          <li><strong>Interferencia:</strong> las probabilidades pueden reforzarse o cancelarse.</li>
-          <li><strong>Medición:</strong> convierte el estado cuántico en un resultado clásico.</li>
-          <li><strong>Compuerta cuántica:</strong> operación que transforma el estado de un qubit.</li>
-        </ul>
-      </div>
+     <div class="modal-body">
+  <div class="concept-slider">
+    <button class="slide-arrow" id="prevConcept" type="button">‹</button>
+
+    <div class="concept-slide">
+      <h3 id="conceptTitle">Qubit</h3>
+      <p id="conceptDescription">
+        Unidad básica de información cuántica. Puede representar 0, 1 o una combinación antes de medirse.
+      </p>
+      <span id="conceptCounter">1 / 6</span>
+    </div>
+
+    <button class="slide-arrow" id="nextConcept" type="button">›</button>
+  </div>
+</div>
 
       <footer class="modal-footer">
         <button class="btn btn-neon btn-small" data-close="conceptos-modal">
@@ -208,5 +210,8 @@
 
   <!-- Archivo de JavaScript principal -->
   <script src="script.js"></script>
+
+  
+
 </body>
 </html>
