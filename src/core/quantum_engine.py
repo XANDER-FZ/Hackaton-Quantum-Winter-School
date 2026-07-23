@@ -12,7 +12,6 @@ from numpy.typing import NDArray
 ComplexVector = NDArray[np.complex128]
 ComplexMatrix = NDArray[np.complex128]
 
-
 # EXCEPCIONES
 class QuantumEngineError(Exception):
     """Error base del motor cuántico."""
@@ -22,87 +21,57 @@ class InvalidBoardError(QuantumEngineError, ValueError):
 
 class InvalidMoveError(QuantumEngineError, RuntimeError):
     """Acción no permitida en el estado actual de la partida."""
-
 # RESULTADOS
 
 @dataclass(frozen=True, slots=True)
-class MeasurementResult:
-    """Resultado de medir una casilla."""
-
+class MeasurementResult: # Resultado de medir una casilla
     tile: int
     is_mine: bool
     probability_before: float
     was_first_safe_click: bool
     turn_finished: int
 
-
 @dataclass(frozen=True, slots=True)
-class SmartRotationResult:
-    """Resultado de una rotación RX o RY optimizada."""
-
+class SmartRotationResult: # Resultado de una rotacion RX o RY optimizada
     gate: str
-
     target_tile: int
     partner_tile: int
-
     angle_radians: float
     angle_degrees: float
-
     target_before: float
     target_after: float
-
     partner_before: float
     partner_after: float
-
     target_change: float
     reduced_target: bool
-
     selection_mode: str
 
-
 @dataclass(frozen=True, slots=True)
-class BoardSnapshot:
-    """Copia inmutable del estado público del tablero."""
-
+class BoardSnapshot: # Copia inmutable del estado publico del tablero
     probabilities: tuple[float, ...]
     measured_tiles: Mapping[int, bool]
-
     exact_mine_count: int
     remaining_mines: int
-
     turn: int
     power_used_this_turn: bool
     first_click_done: bool
-
     active_layouts: int
-
     game_won: bool
     game_over: bool
-
     history: tuple[str, ...]
 
 
 @dataclass(frozen=True, slots=True)
-class _RotationCandidate:
-    """Candidato interno durante la optimización de RX y RY."""
-
+class _RotationCandidate: # Candidato interno durante la optimización de RX y RY
     partner_tile: int
-
     angle_radians: float
     state: ComplexVector
-
     target_after: float
     partner_after: float
-
     reduction: float
     visible_change: float
 
-
-# =====================================================================
 # MOTOR
-# =====================================================================
-
-
 class QuantumMinesweeperEngine:
     """Motor global de Quantum Minesweeper.
 
@@ -118,129 +87,64 @@ class QuantumMinesweeperEngine:
     """
 
     ATOL = 1e-12
-
-    def __init__(
-        self,
-        rows: int = 3,
-        columns: int = 3,
-        mine_count: int = 3,
-        *,
-        seed: int | None = None,
-        randomness: float = 0.85,
+    def __init__(self, rows: int = 3, columns: int = 3, mine_count: int = 3, *, seed: int | None = None, randomness: float = 0.85,
     ) -> None:
 
         if not isinstance(rows, int) or rows <= 0:
-            raise InvalidBoardError(
-                "rows debe ser un entero positivo."
-            )
-
+            raise InvalidBoardError("rows debe ser un entero positivo.")
         if not isinstance(columns, int) or columns <= 0:
-            raise InvalidBoardError(
-                "columns debe ser un entero positivo."
-            )
+            raise InvalidBoardError("columns debe ser un entero positivo.")
 
         self.rows = rows
         self.columns = columns
-
         self.tile_count = rows * columns
 
         if not isinstance(mine_count, int):
-            raise InvalidBoardError(
-                "mine_count debe ser un entero."
-            )
-
+            raise InvalidBoardError("mine_count debe ser un entero.")
         if not 0 <= mine_count < self.tile_count:
-            raise InvalidBoardError(
-                "mine_count debe cumplir "
-                "0 <= mine_count < rows * columns."
-            )
-
+            raise InvalidBoardError("mine_count debe cumplir " "0 <= mine_count < rows * columns.")
         if not 0.0 <= randomness <= 1.0:
-            raise InvalidBoardError(
-                "randomness debe estar entre 0 y 1."
-            )
+            raise InvalidBoardError("randomness debe estar entre 0 y 1.")
 
         self.mine_count = mine_count
         self.randomness = float(randomness)
-
         self._rng = np.random.default_rng(seed)
 
         # Todas las configuraciones que contienen exactamente N minas.
         self._basis_masks = self._create_fixed_mine_basis()
-
-        self._index_by_mask = {
-            mask: index
-            for index, mask in enumerate(self._basis_masks)
-        }
-
+        self._index_by_mask = {mask: index for index, mask in enumerate(self._basis_masks)}
         self._state = self._create_random_state()
         self._initial_state = self._state.copy()
-
         self._measured_tiles: dict[int, bool] = {}
         self._history: list[str] = []
-
         self.turn = 0
         self.power_used_this_turn = False
         self.first_click_done = False
         self.game_over = False
 
-    # =================================================================
     # CONSTRUCCIÓN DEL ESTADO
-    # =================================================================
-
-    def _create_fixed_mine_basis(self) -> tuple[int, ...]:
-        """Genera configuraciones con exactamente mine_count minas."""
-
+    def _create_fixed_mine_basis(self) -> tuple[int, ...]: # genera configuraciones binarias con exactamente mine_count minas
         masks: list[int] = []
-
-        for mine_positions in combinations(
-            range(self.tile_count),
-            self.mine_count,
-        ):
+        for mine_positions in combinations(range(self.tile_count), self.mine_count,):
             mask = 0
-
             for tile in mine_positions:
                 mask |= 1 << tile
-
             masks.append(mask)
-
         return tuple(masks)
 
     @classmethod
-    def _normalize(
-        cls,
-        state: ComplexVector,
-    ) -> ComplexVector:
-        """Normaliza un vector de estado."""
-
-        vector = np.asarray(
-            state,
-            dtype=np.complex128,
-        )
+    def _normalize(cls, state: ComplexVector,) -> ComplexVector: # Normaliza un vector de estado
+        vector = np.asarray(state, dtype=np.complex128,)
 
         if not np.all(np.isfinite(vector.real)):
-            raise InvalidMoveError(
-                "El estado contiene valores reales inválidos."
-            )
-
+            raise InvalidMoveError("El estado contiene valores reales inválidos.")
         if not np.all(np.isfinite(vector.imag)):
-            raise InvalidMoveError(
-                "El estado contiene valores imaginarios inválidos."
-            )
-
-        norm = float(
-            np.linalg.norm(vector)
-        )
-
+            raise InvalidMoveError("El estado contiene valores imaginarios inválidos.")
+        norm = float(np.linalg.norm(vector))
         if norm <= cls.ATOL:
-            raise InvalidMoveError(
-                "El estado cuántico tiene norma cero."
-            )
+            raise InvalidMoveError("El estado cuántico tiene norma cero.")
 
-        return np.asarray(
-            vector / norm,
-            dtype=np.complex128,
-        )
+        return np.asarray(vector / norm, dtype=np.complex128,)
 
     def _create_random_state(self) -> ComplexVector:
         """Crea un estado aleatorio estructurado.
@@ -254,224 +158,76 @@ class QuantumMinesweeperEngine:
         """
 
         dimension = len(self._basis_masks)
-
         if dimension == 1:
-            return np.ones(
-                1,
-                dtype=np.complex128,
-            )
-
+            return np.ones(1, dtype=np.complex128,)
         # Preferencia aleatoria de cada casilla por contener una mina.
-        tile_biases = self._rng.normal(
-            loc=0.0,
-            scale=1.0,
-            size=self.tile_count,
-        )
-
-        layout_scores = np.zeros(
-            dimension,
-            dtype=np.float64,
-        )
+        tile_biases = self._rng.normal(loc=0.0, scale=1.0, size=self.tile_count,) 
+        layout_scores = np.zeros(dimension, dtype=np.float64,)
 
         for index, mask in enumerate(self._basis_masks):
             score = 0.0
-
             for tile in range(self.tile_count):
                 if self._contains_mine(mask, tile):
                     score += float(tile_biases[tile])
 
             # Pequeña perturbación para evitar empates exactos.
-            score += float(
-                self._rng.normal(
-                    loc=0.0,
-                    scale=0.08,
-                )
-            )
-
+            score += float(self._rng.normal(loc=0.0,scale=0.08,))
             layout_scores[index] = score
 
         # Mayor randomness produce mayor concentración.
-        temperature = max(
-            0.20,
-            0.85 - 0.50 * self.randomness,
-        )
-
-        scaled_scores = (
-            layout_scores / temperature
-        )
-
-        scaled_scores -= np.max(
-            scaled_scores
-        )
-
-        softmax_weights = np.exp(
-            scaled_scores
-        )
-
-        softmax_weights /= np.sum(
-            softmax_weights
-        )
+        temperature = max(0.20,0.85 - 0.50 * self.randomness,)
+        scaled_scores = (layout_scores / temperature)
+        scaled_scores -= np.max(scaled_scores)
+        softmax_weights = np.exp(scaled_scores)
+        softmax_weights /= np.sum(softmax_weights)
 
         # Número de configuraciones dominantes.
-        dominant_limit = min(
-            dimension,
-            max(
-                8,
-                int(
-                    round(
-                        24 - 12 * self.randomness
-                    )
-                ),
-            ),
-        )
+        dominant_limit = min(dimension,max(8,int(round(24 - 12 * self.randomness)),),)
+        strongest_indices = np.argpartition(softmax_weights,-dominant_limit,)[-dominant_limit:]
+        concentrated = np.zeros(dimension,dtype=np.float64,)
+        concentrated[strongest_indices] = (softmax_weights[strongest_indices])
 
-        strongest_indices = np.argpartition(
-            softmax_weights,
-            -dominant_limit,
-        )[-dominant_limit:]
-
-        concentrated = np.zeros(
-            dimension,
-            dtype=np.float64,
-        )
-
-        concentrated[strongest_indices] = (
-            softmax_weights[strongest_indices]
-        )
-
-        concentrated /= np.sum(
-            concentrated
-        )
-
+        concentrated /= np.sum(concentrated)
         # Soporte uniforme para evitar probabilidades exactamente cero.
-        uniform = np.full(
-            dimension,
-            1.0 / dimension,
-        )
-
-        uniform_floor = (
-            0.08 - 0.05 * self.randomness
-        )
-
-        probabilities = (
-            (1.0 - uniform_floor) * concentrated
-            + uniform_floor * uniform
-        )
-
-        probabilities /= np.sum(
-            probabilities
-        )
+        uniform = np.full(dimension,1.0 / dimension,)
+        uniform_floor = (0.08 - 0.05 * self.randomness)
+        probabilities = ((1.0 - uniform_floor) * concentrated + uniform_floor * uniform)
+        probabilities /= np.sum(probabilities)
 
         # Fases correlacionadas por casilla.
-        phase_span = (
-            pi / 2.0
-        ) * self.randomness
-
-        tile_phases = self._rng.uniform(
-            -phase_span,
-            phase_span,
-            size=self.tile_count,
-        )
-
-        phases = np.zeros(
-            dimension,
-            dtype=np.float64,
-        )
+        phase_span = (np.pi / 2.0) * self.randomness
+        tile_phases = self._rng.uniform(-phase_span, phase_span, size=self.tile_count,)
+        phases = np.zeros(dimension, dtype=np.float64,)
 
         for index, mask in enumerate(self._basis_masks):
             phase = 0.0
-
             for tile in range(self.tile_count):
-                if self._contains_mine(mask, tile):
-                    phase += float(
-                        tile_phases[tile]
-                    )
-
+                if self._contains_mine(mask, tile): phase += float(tile_phases[tile])
             phases[index] = phase
+        amplitudes = (np.sqrt(probabilities) * np.exp(1j * phases))
+        return self._normalize(amplitudes)
 
-        amplitudes = (
-            np.sqrt(probabilities)
-            * np.exp(1j * phases)
-        )
-
-        return self._normalize(
-            amplitudes
-        )
-
-    # =================================================================
     # VALIDACIÓN Y COORDENADAS
-    # =================================================================
-
     @staticmethod
-    def _contains_mine(
-        mask: int,
-        tile: int,
-    ) -> bool:
-        """Indica si una configuración tiene mina en una casilla."""
+    def _contains_mine(mask: int, tile: int,) -> bool: # indica si una configuracion tiene una mina en una casilla
+        return bool((mask >> tile) & 1)
 
-        return bool(
-            (mask >> tile) & 1
-        )
+    def _validate_tile(self, tile: int,) -> None:
+        if (not isinstance(tile, int) or not 0 <= tile < self.tile_count):
+            raise InvalidBoardError(f"La casilla debe estar entre " f"0 y {self.tile_count - 1}.")
 
-    def _validate_tile(
-        self,
-        tile: int,
-    ) -> None:
+    def index(self, row: int, column: int,) -> int:
+        if (not isinstance(row, int) or not 0 <= row < self.rows):
+            raise InvalidBoardError("Fila fuera del tablero.")
+        if (not isinstance(column, int) or not 0 <= column < self.columns):
+            raise InvalidBoardError("Columna fuera del tablero.")
+        return (row * self.columns + column)
 
-        if (
-            not isinstance(tile, int)
-            or not 0 <= tile < self.tile_count
-        ):
-            raise InvalidBoardError(
-                f"La casilla debe estar entre "
-                f"0 y {self.tile_count - 1}."
-            )
-
-    def index(
-        self,
-        row: int,
-        column: int,
-    ) -> int:
-        """Convierte fila y columna en índice."""
-
-        if (
-            not isinstance(row, int)
-            or not 0 <= row < self.rows
-        ):
-            raise InvalidBoardError(
-                "Fila fuera del tablero."
-            )
-
-        if (
-            not isinstance(column, int)
-            or not 0 <= column < self.columns
-        ):
-            raise InvalidBoardError(
-                "Columna fuera del tablero."
-            )
-
-        return (
-            row * self.columns
-            + column
-        )
-
-    def coordinates(
-        self,
-        tile: int,
-    ) -> tuple[int, int]:
-        """Convierte un índice en fila y columna."""
-
+    def coordinates(self, tile: int,) -> tuple[int, int]: # Convierte un indice en fila y columna
         self._validate_tile(tile)
-
-        return divmod(
-            tile,
-            self.columns,
-        )
-
-    # =================================================================
+        return divmod(tile,self.columns,)
+    
     # INFORMACIÓN PÚBLICA
-    # =================================================================
-
     @property
     def measured_tiles(self) -> dict[int, bool]:
         """Casillas medidas.
@@ -480,420 +236,167 @@ class QuantumMinesweeperEngine:
         True representa una mina.
         """
 
-        return dict(
-            self._measured_tiles
-        )
+        return dict(self._measured_tiles)
 
     @property
-    def history(self) -> tuple[str, ...]:
-        """Historial de acciones."""
-
-        return tuple(
-            self._history
-        )
+    def history(self) -> tuple[str, ...]: # Historial de acciones
+        return tuple(self._history)
 
     @property
-    def state_dimension(self) -> int:
-        """Número total de configuraciones posibles."""
-
-        return len(
-            self._basis_masks
-        )
+    def state_dimension(self) -> int: # Numero total de configuraciones posibles
+        return len(self._basis_masks)
 
     @property
-    def active_layouts(self) -> int:
-        """Configuraciones con amplitud distinta de cero."""
-
-        return int(
-            np.count_nonzero(
-                np.abs(self._state)
-                > self.ATOL
-            )
-        )
+    def active_layouts(self) -> int: #configuraciones con amplitud distinta de cero
+         return int(np.count_nonzero(np.abs(self._state) > self.ATOL))
 
     @property
-    def can_use_power(self) -> bool:
-        """Indica si se puede usar un poder."""
-
-        return (
-            self.first_click_done
-            and not self.power_used_this_turn
-            and not self.game_over
-        )
+    def can_use_power(self) -> bool: #indica si se puede usar un poder
+        return (self.first_click_done and not self.power_used_this_turn and not self.game_over)
 
     @property
-    def remaining_mines(self) -> int:
-        """Número exacto de minas aún no reveladas."""
-
-        revealed_mines = sum(
-            self._measured_tiles.values()
-        )
-
-        return (
-            self.mine_count
-            - revealed_mines
-        )
+    def remaining_mines(self) -> int: # Numero exacto de minas aun no reveladas
+        revealed_mines = sum(self._measured_tiles.values())
+        return (self.mine_count - revealed_mines)
 
     @property
-    def game_won(self) -> bool:
-        """Victoria al revelar todas las casillas seguras."""
+    def game_won(self) -> bool: # Victoria al revelar todas las casillas seguras
+        revealed_safe_tiles = sum(not is_mine for is_mine in self._measured_tiles.values())
+        total_safe_tiles = (self.tile_count - self.mine_count)
+        return (revealed_safe_tiles == total_safe_tiles)
 
-        revealed_safe_tiles = sum(
-            not is_mine
-            for is_mine
-            in self._measured_tiles.values()
-        )
+    def tile_probability(self, tile: int,) -> float: # Probabilidad actual de que una casilla sea una mina
+        return self._tile_probability_from_state(self._state,tile,)
 
-        total_safe_tiles = (
-            self.tile_count
-            - self.mine_count
-        )
-
-        return (
-            revealed_safe_tiles
-            == total_safe_tiles
-        )
-
-    def tile_probability(
-        self,
-        tile: int,
-    ) -> float:
-        """Probabilidad actual de que una casilla sea una mina."""
-
-        return self._tile_probability_from_state(
-            self._state,
-            tile,
-        )
-
-    def probabilities(
-        self,
-    ) -> NDArray[np.float64]:
+    def probabilities(self,) -> NDArray[np.float64]: #probabilidad de mina de cada casilla
         """Probabilidad de mina de cada casilla."""
-
-        return np.array(
-            [
-                self.tile_probability(tile)
-                for tile
-                in range(self.tile_count)
-            ],
-            dtype=np.float64,
-        )
-
+        return np.array([self.tile_probability(tile) for tile in range(self.tile_count)], dtype=np.float64,)
+    
     def expected_mines(self) -> float:
         """Suma de las probabilidades marginales.
 
         Siempre debe ser aproximadamente mine_count.
         """
+        return float(np.sum(self.probabilities()))
 
-        return float(
-            np.sum(
-                self.probabilities()
-            )
+    def snapshot(self) -> BoardSnapshot: #devuelve una copia inmutable para la interfaz
+        return BoardSnapshot(probabilities=tuple(float(probability) for probability in self.probabilities()),
+            measured_tiles = dict(self._measured_tiles),
+            exact_mine_count = self.mine_count,
+            remaining_mines = self.remaining_mines,
+            turn = self.turn,
+            power_used_this_turn = (self.power_used_this_turn),
+            first_click_done = (self.first_click_done),
+            active_layouts = self.active_layouts,
+            game_won = self.game_won,
+            game_over = self.game_over,
+            history = self.history,
         )
 
-    def snapshot(self) -> BoardSnapshot:
-        """Devuelve una copia inmutable para la interfaz."""
-
-        return BoardSnapshot(
-            probabilities=tuple(
-                float(probability)
-                for probability
-                in self.probabilities()
-            ),
-            measured_tiles=dict(
-                self._measured_tiles
-            ),
-            exact_mine_count=self.mine_count,
-            remaining_mines=self.remaining_mines,
-            turn=self.turn,
-            power_used_this_turn=(
-                self.power_used_this_turn
-            ),
-            first_click_done=(
-                self.first_click_done
-            ),
-            active_layouts=self.active_layouts,
-            game_won=self.game_won,
-            game_over=self.game_over,
-            history=self.history,
-        )
-
-    def _tile_probability_from_state(
-        self,
-        state: ComplexVector,
-        tile: int,
-    ) -> float:
-        """Probabilidad marginal usando un estado temporal."""
-
+    def _tile_probability_from_state(self, state: ComplexVector, tile: int,) -> float: #probabilidad marginal usando un estado temporal
         self._validate_tile(tile)
-
-        layout_probabilities = (
-            np.abs(state) ** 2
-        )
-
+        layout_probabilities = (np.abs(state) ** 2)
         probability = 0.0
+        for layout_probability, mask in zip(layout_probabilities, self._basis_masks,):
+            if self._contains_mine(mask, tile): 
+                probability += float(layout_probability)
+        return float(np.clip(probability,0.0, 1.0,))
 
-        for layout_probability, mask in zip(
-            layout_probabilities,
-            self._basis_masks,
-        ):
-            if self._contains_mine(mask, tile):
-                probability += float(
-                    layout_probability
-                )
-
-        return float(
-            np.clip(
-                probability,
-                0.0,
-                1.0,
-            )
-        )
-
-    # =================================================================
     # CONTROL DE TURNOS
-    # =================================================================
-
-    def _prepare_power(
-        self,
-        *tiles: int,
-    ) -> None:
-        """Valida que un poder pueda utilizarse."""
-
+    def _prepare_power(self, *tiles: int,) -> None: #valida que un poder pueda utilizarse
         if self.game_over:
-            raise InvalidMoveError(
-                "La partida ya terminó."
-            )
-
+            raise InvalidMoveError("La partida ya terminó.")
         if not self.first_click_done:
-            raise InvalidMoveError(
-                "Primero debes medir la casilla inicial protegida."
-            )
-
+            raise InvalidMoveError("Primero debes medir la casilla inicial protegida.")
         if self.power_used_this_turn:
             raise InvalidMoveError(
                 "Ya usaste un poder este turno. "
-                "Ahora debes medir una casilla."
-            )
+                "Ahora debes medir una casilla.")
 
         for tile in tiles:
             self._validate_tile(tile)
-
             if tile in self._measured_tiles:
                 raise InvalidMoveError(
                     "No se puede aplicar un poder "
-                    "a una casilla medida."
-                )
+                    "a una casilla medida.")
 
-    def _finish_power(
-        self,
-        description: str,
-    ) -> None:
-        """Marca el poder del turno como utilizado."""
-
+    def _finish_power(self, description: str,) -> None: #marca el poder del turno como utilizado
         self.power_used_this_turn = True
+        self._history.append(f"T{self.turn}:POWER:{description}")
 
-        self._history.append(
-            f"T{self.turn}:POWER:{description}"
-        )
-
-    # =================================================================
     # PUERTAS DE FASE: Z Y S
-    # =================================================================
-
-    def apply_z(
-        self,
-        tile: int,
-    ) -> None:
+    def apply_z(self, tile: int,) -> None:
         """Aplica Z sobre una casilla física.
 
         Cambia el signo de las ramas donde esa casilla contiene una mina.
         """
 
         self._prepare_power(tile)
-
-        for index, mask in enumerate(
-            self._basis_masks
-        ):
+        for index, mask in enumerate(self._basis_masks):
             if self._contains_mine(mask, tile):
                 self._state[index] *= -1.0
 
-        self._finish_power(
-            f"Z@{tile}"
-        )
+        self._finish_power(f"Z@{tile}")
 
-    def apply_s(
-        self,
-        tile: int,
-    ) -> None:
-        """Aplica una fase de +90° sobre las ramas donde tile = 1."""
-
+    def apply_s(self,tile: int,) -> None: # Aplica una fase de +90° sobre las ramas donde tile = 1
         self._prepare_power(tile)
-
-        for index, mask in enumerate(
-            self._basis_masks
-        ):
+        for index, mask in enumerate(self._basis_masks):
             if self._contains_mine(mask, tile):
                 self._state[index] *= 1j
+        self._finish_power(f"S@{tile}")
 
-        self._finish_power(
-            f"S@{tile}"
-        )
-
-    # =================================================================
     # PUERTAS LÓGICAS DE DOS CASILLAS
-    # =================================================================
-
     @staticmethod
-    def _validate_pair_matrix(
-        matrix: ComplexMatrix,
-    ) -> ComplexMatrix:
-        """Valida una matriz unitaria 2x2."""
-
-        gate = np.asarray(
-            matrix,
-            dtype=np.complex128,
-        )
-
+    def _validate_pair_matrix(matrix: ComplexMatrix,) -> ComplexMatrix: #valida una matriz unitaria 2x2
+        gate = np.asarray(matrix,dtype=np.complex128,)
         if gate.shape != (2, 2):
-            raise InvalidMoveError(
-                "Una puerta lógica debe ser una matriz 2x2."
-            )
-
-        identity = np.eye(
-            2,
-            dtype=np.complex128,
-        )
-
-        if not np.allclose(
-            gate.conj().T @ gate,
-            identity,
-            atol=1e-10,
-        ):
-            raise InvalidMoveError(
-                "La matriz de la puerta debe ser unitaria."
-            )
-
+            raise InvalidMoveError("Una puerta lógica debe ser una matriz 2x2.")
+        identity = np.eye(2, dtype=np.complex128,)
+        if not np.allclose(gate.conj().T @ gate, identity, atol=1e-10,):
+            raise InvalidMoveError("La matriz de la puerta debe ser unitaria.")
         return gate
 
-    def _transform_pair_state(
-        self,
-        state: ComplexVector,
-        tile_a: int,
-        tile_b: int,
-        matrix: ComplexMatrix,
-    ) -> ComplexVector:
+    def _transform_pair_state(self, state: ComplexVector, tile_a: int, tile_b: int, matrix: ComplexMatrix,) -> ComplexVector:
         """Aplica una puerta sobre el subespacio |01>, |10>.
 
         Los estados |00> y |11> permanecen sin cambios. Esto garantiza
         que el número exacto de minas se conserve.
         """
-
         self._validate_tile(tile_a)
         self._validate_tile(tile_b)
-
         if tile_a == tile_b:
-            raise InvalidMoveError(
-                "La puerta necesita dos casillas diferentes."
-            )
-
-        gate = self._validate_pair_matrix(
-            matrix
-        )
-
-        transformed_state = np.asarray(
-            state,
-            dtype=np.complex128,
-        ).copy()
+            raise InvalidMoveError("La puerta necesita dos casillas diferentes.")
+        gate = self._validate_pair_matrix(matrix)
+        transformed_state = np.asarray(state, dtype=np.complex128,).copy()
 
         bit_a = 1 << tile_a
         bit_b = 1 << tile_b
 
         for mask_01 in self._basis_masks:
-            a_is_mine = bool(
-                mask_01 & bit_a
-            )
-
-            b_is_mine = bool(
-                mask_01 & bit_b
-            )
-
+            a_is_mine = bool(mask_01 & bit_a)
+            b_is_mine = bool(mask_01 & bit_b)
             # Procesamos únicamente el estado |01>.
             # De esta manera cada pareja |01>, |10> se procesa una vez.
             if a_is_mine or not b_is_mine:
                 continue
-
-            mask_10 = (
-                mask_01
-                ^ bit_a
-                ^ bit_b
-            )
-
-            index_01 = self._index_by_mask[
-                mask_01
-            ]
-
-            index_10 = self._index_by_mask[
-                mask_10
-            ]
-
+            mask_10 = (mask_01 ^ bit_a ^ bit_b)
+            index_01 = self._index_by_mask[mask_01]
+            index_10 = self._index_by_mask[mask_10]
             old_pair = np.array(
-                [
-                    state[index_01],
-                    state[index_10],
-                ],
-                dtype=np.complex128,
-            )
-
+                [state[index_01], state[index_10],],dtype=np.complex128,)
             new_pair = gate @ old_pair
+            transformed_state[index_01] = (new_pair[0])
+            transformed_state[index_10] = (new_pair[1])
+        return self._normalize(transformed_state)
 
-            transformed_state[index_01] = (
-                new_pair[0]
-            )
+    def _apply_pair_matrix(self, tile_a: int, tile_b: int, matrix: ComplexMatrix, *, label: str, ) -> None: \
+        #aplica una puerta logica sobre dos casillas y consume el poder del turno
+        self._prepare_power(tile_a, tile_b,)
+        self._state = self._transform_pair_state(self._state,tile_a,tile_b,matrix,)
+        self._finish_power(f"{label}@({tile_a},{tile_b})")
 
-            transformed_state[index_10] = (
-                new_pair[1]
-            )
-
-        return self._normalize(
-            transformed_state
-        )
-
-    def _apply_pair_matrix(
-        self,
-        tile_a: int,
-        tile_b: int,
-        matrix: ComplexMatrix,
-        *,
-        label: str,
-    ) -> None:
-        """Aplica una puerta lógica y consume el poder del turno."""
-
-        self._prepare_power(
-            tile_a,
-            tile_b,
-        )
-
-        self._state = self._transform_pair_state(
-            self._state,
-            tile_a,
-            tile_b,
-            matrix,
-        )
-
-        self._finish_power(
-            f"{label}@({tile_a},{tile_b})"
-        )
-
-    # -----------------------------------------------------------------
     # X
-    # -----------------------------------------------------------------
-
-    def apply_x(
-        self,
-        tile_a: int,
-        tile_b: int,
-    ) -> None:
+    def apply_x(self,tile_a: int,tile_b: int,) -> None:
         """X lógica.
 
         Intercambia:
@@ -902,372 +405,113 @@ class QuantumMinesweeperEngine:
 
         Esto mueve la amplitud de mina entre ambas casillas.
         """
-
-        matrix = np.array(
-            [
+        matrix = np.array([
                 [0, 1],
-                [1, 0],
-            ],
-            dtype=np.complex128,
-        )
+                [1, 0],], dtype=np.complex128,)
 
-        self._apply_pair_matrix(
-            tile_a,
-            tile_b,
-            matrix,
-            label="X",
-        )
+        self._apply_pair_matrix(tile_a, tile_b, matrix, label="X",)
 
-    # -----------------------------------------------------------------
     # HADAMARD
-    # -----------------------------------------------------------------
-
-    def apply_hadamard(
-        self,
-        tile_a: int,
-        tile_b: int,
-    ) -> None:
-        """Hadamard lógica sobre |01>, |10>."""
-
+    def apply_hadamard(self, tile_a: int, tile_b: int, ) -> None: # hadamard lógica sobre |01>, |10>."""
         matrix = np.array(
             [
                 [1, 1],
-                [1, -1],
-            ],
-            dtype=np.complex128,
-        ) / sqrt(2.0)
+                [1, -1],], dtype=np.complex128,) / sqrt(2.0)
+        self._apply_pair_matrix(tile_a, tile_b, matrix, label="H", )
 
-        self._apply_pair_matrix(
-            tile_a,
-            tile_b,
-            matrix,
-            label="H",
-        )
-
-    # -----------------------------------------------------------------
     # MATRICES RX, RY Y RZ
-    # -----------------------------------------------------------------
-
     @staticmethod
-    def _logical_rotation_matrix(
-        gate: str,
-        angle_radians: float,
-    ) -> ComplexMatrix:
-        """Construye una rotación lógica."""
-
+    def _logical_rotation_matrix(gate: str, angle_radians: float, ) -> ComplexMatrix: #construye una matriz de rotación lógica
         gate = gate.upper()
-
-        theta = float(
-            angle_radians
-        )
-
-        cosine = cos(
-            theta / 2.0
-        )
-
-        sine = sin(
-            theta / 2.0
-        )
-
+        theta = float(angle_radians)
+        cosine = cos(theta/2.0)
+        sine = sin(theta/2.0)
         if gate == "RX":
             return np.array(
-                [
-                    [
-                        cosine,
-                        -1j * sine,
-                    ],
-                    [
-                        -1j * sine,
-                        cosine,
-                    ],
-                ],
-                dtype=np.complex128,
-            )
-
+                [[cosine,-1j * sine,],
+                    [-1j * sine, cosine,],], dtype=np.complex128,)
         if gate == "RY":
             return np.array(
-                [
-                    [
-                        cosine,
-                        -sine,
-                    ],
-                    [
-                        sine,
-                        cosine,
-                    ],
-                ],
-                dtype=np.complex128,
-            )
-
+                [[cosine, -sine,], [sine, cosine,],], dtype=np.complex128,)
         if gate == "RZ":
             return np.array(
-                [
-                    [
-                        np.exp(
-                            -0.5j * theta
-                        ),
-                        0,
-                    ],
-                    [
-                        0,
-                        np.exp(
-                            0.5j * theta
-                        ),
-                    ],
-                ],
-                dtype=np.complex128,
-            )
+                [[np.exp(-0.5j * theta),0,], [0, np.exp( 0.5j * theta ),],], dtype=np.complex128,)
+        raise InvalidMoveError(f"Rotación desconocida: {gate}.")
 
-        raise InvalidMoveError(
-            f"Rotación desconocida: {gate}."
-        )
-
-    def apply_rx(
-        self,
-        tile_a: int,
-        tile_b: int,
-        angle_radians: float,
-    ) -> None:
+    def apply_rx(self, tile_a: int, tile_b: int,angle_radians: float,) -> None:
         """Aplica RX lógica con un ángulo explícito."""
-
-        matrix = self._logical_rotation_matrix(
-            "RX",
-            angle_radians,
-        )
-
-        self._apply_pair_matrix(
-            tile_a,
-            tile_b,
-            matrix,
-            label=(
-                f"RX["
+        matrix = self._logical_rotation_matrix("RX",angle_radians, )
+        self._apply_pair_matrix(tile_a,tile_b, matrix, label=(f"RX["
                 f"{np.degrees(angle_radians):.1f}deg"
-                f"]"
-            ),
-        )
+                f"]"),)
 
-    def apply_ry(
-        self,
-        tile_a: int,
-        tile_b: int,
-        angle_radians: float,
-    ) -> None:
+    def apply_ry(self, tile_a: int, tile_b: int, angle_radians: float, ) -> None:
         """Aplica RY lógica con un ángulo explícito."""
-
-        matrix = self._logical_rotation_matrix(
-            "RY",
-            angle_radians,
-        )
-
-        self._apply_pair_matrix(
-            tile_a,
-            tile_b,
-            matrix,
-            label=(
-                f"RY["
+        matrix = self._logical_rotation_matrix("RY", angle_radians)
+        self._apply_pair_matrix(tile_a, tile_b, matrix, label=(f"RY["
                 f"{np.degrees(angle_radians):.1f}deg"
-                f"]"
-            ),
-        )
+                f"]"),)
 
-    def apply_rz(
-        self,
-        tile_a: int,
-        tile_b: int,
-        angle_radians: float,
-    ) -> None:
+    def apply_rz(self, tile_a: int, tile_b: int, angle_radians: float,) -> None:
         """Aplica RZ lógica.
 
         RZ normalmente cambia fases, pero no las probabilidades
         inmediatamente.
         """
-
-        matrix = self._logical_rotation_matrix(
-            "RZ",
-            angle_radians,
-        )
-
-        self._apply_pair_matrix(
-            tile_a,
-            tile_b,
-            matrix,
-            label=(
+        matrix = self._logical_rotation_matrix("RZ", angle_radians,)
+        self._apply_pair_matrix(tile_a, tile_b, matrix, label=(
                 f"RZ["
                 f"{np.degrees(angle_radians):.1f}deg"
-                f"]"
-            ),
-        )
+                f"]"),)
 
-    # =================================================================
     # RX Y RY INTELIGENTES
-    # =================================================================
-
-    def _best_candidate_for_partner(
-        self,
-        gate: str,
-        target_tile: int,
-        partner_tile: int,
-        *,
-        maximum_angle_degrees: float,
-        step_degrees: float,
-    ) -> tuple[
-        _RotationCandidate | None,
-        _RotationCandidate | None,
-    ]:
+    def _best_candidate_for_partner(self, gate: str, target_tile: int, partner_tile: int, *, maximum_angle_degrees: float, step_degrees: float,) -> tuple[ _RotationCandidate | None, _RotationCandidate | None,]:
         """Encuentra el mejor ángulo para un partner.
 
         Retorna:
             - mejor candidato que reduce el target;
             - mejor candidato que genera un cambio visible.
         """
-
-        target_before = self.tile_probability(
-            target_tile
-        )
-
+        target_before = self.tile_probability(target_tile)
         best_reducing: _RotationCandidate | None = None
         best_visible: _RotationCandidate | None = None
-
-        angle_candidates = np.arange(
-            -maximum_angle_degrees,
-            maximum_angle_degrees
-            + step_degrees / 2.0,
-            step_degrees,
-            dtype=np.float64,
-        )
+        angle_candidates = np.arange(-maximum_angle_degrees, maximum_angle_degrees + step_degrees / 2.0, step_degrees, dtype=np.float64, )
 
         for angle_degrees in angle_candidates:
-            if (
-                abs(float(angle_degrees))
-                <= self.ATOL
-            ):
+            if (abs(float(angle_degrees)) <= self.ATOL ):
                 continue
 
-            angle_radians = float(
-                np.deg2rad(
-                    angle_degrees
-                )
-            )
-
-            matrix = self._logical_rotation_matrix(
-                gate,
-                angle_radians,
-            )
-
-            preview_state = self._transform_pair_state(
-                self._state,
-                target_tile,
-                partner_tile,
-                matrix,
-            )
-
-            target_after = (
-                self._tile_probability_from_state(
-                    preview_state,
-                    target_tile,
-                )
-            )
-
-            partner_after = (
-                self._tile_probability_from_state(
-                    preview_state,
-                    partner_tile,
-                )
-            )
-
-            reduction = (
-                target_before
-                - target_after
-            )
-
-            visible_change = abs(
-                target_after
-                - target_before
-            )
-
+            angle_radians = float(np.deg2rad( angle_degrees ))
+            matrix = self._logical_rotation_matrix(gate, angle_radians, )
+            preview_state = self._transform_pair_state(self._state, target_tile, partner_tile, matrix, )
+            target_after = ( self._tile_probability_from_state(preview_state, target_tile,))
+            partner_after = (self._tile_probability_from_state(preview_state, partner_tile, ))
+            reduction = (target_before - target_after)
+            visible_change = abs(target_after - target_before)
             candidate = _RotationCandidate(
-                partner_tile=partner_tile,
-                angle_radians=angle_radians,
-                state=preview_state,
-                target_after=target_after,
-                partner_after=partner_after,
-                reduction=reduction,
-                visible_change=visible_change,
-            )
+                partner_tile = partner_tile,
+                angle_radians = angle_radians,
+                state = preview_state,
+                target_after = target_after,
+                partner_after = partner_after,
+                reduction = reduction,
+                visible_change = visible_change,)
 
-            # Mejor reducción de riesgo.
-            if reduction > self.ATOL:
-                should_replace = (
-                    best_reducing is None
-                    or reduction
-                    > best_reducing.reduction
-                    + self.ATOL
-                )
-
-                same_reduction_smaller_angle = (
-                    best_reducing is not None
-                    and abs(
-                        reduction
-                        - best_reducing.reduction
-                    )
-                    <= self.ATOL
-                    and abs(angle_radians)
-                    < abs(
-                        best_reducing.angle_radians
-                    )
-                )
-
-                if (
-                    should_replace
-                    or same_reduction_smaller_angle
-                ):
+            if reduction > self.ATOL: # Mejor reducción de riesgo.
+                should_replace = ( best_reducing is None or reduction > best_reducing.reduction + self.ATOL)
+                same_reduction_smaller_angle = (best_reducing is not None and abs(reduction - best_reducing.reduction) <= self.ATOL and abs(angle_radians) < abs( best_reducing.angle_radians ))
+                if (should_replace or same_reduction_smaller_angle):
                     best_reducing = candidate
 
             # Mayor cambio visible.
             if visible_change > self.ATOL:
-                should_replace_visible = (
-                    best_visible is None
-                    or visible_change
-                    > best_visible.visible_change
-                    + self.ATOL
-                )
-
-                same_change_smaller_angle = (
-                    best_visible is not None
-                    and abs(
-                        visible_change
-                        - best_visible.visible_change
-                    )
-                    <= self.ATOL
-                    and abs(angle_radians)
-                    < abs(
-                        best_visible.angle_radians
-                    )
-                )
-
-                if (
-                    should_replace_visible
-                    or same_change_smaller_angle
-                ):
+                should_replace_visible = ( best_visible is None or visible_change > best_visible.visible_change + self.ATOL)
+                same_change_smaller_angle = (best_visible is not None and abs( visible_change - best_visible.visible_change ) <= self.ATOL and abs(angle_radians) < abs( best_visible.angle_radians ))
+                if (should_replace_visible or same_change_smaller_angle): 
                     best_visible = candidate
+        return (best_reducing, best_visible,)
 
-        return (
-            best_reducing,
-            best_visible,
-        )
-
-    def _choose_smart_rotation(
-        self,
-        gate: str,
-        target_tile: int,
-        *,
-        maximum_angle_degrees: float = 180.0,
-        step_degrees: float = 2.0,
-        random_top_k: int = 3,
-    ) -> tuple[
-        _RotationCandidate,
-        str,
-    ]:
+    def _choose_smart_rotation(self, gate: str, target_tile: int, *, maximum_angle_degrees: float = 180.0, step_degrees: float = 2.0, random_top_k: int = 3, ) -> tuple[ _RotationCandidate, str, ]:
         """Elige automáticamente partner y ángulo.
 
         El motor:
@@ -1275,73 +519,28 @@ class QuantumMinesweeperEngine:
         2. Busca el mejor ángulo para cada partner.
         3. Selecciona aleatoriamente entre los mejores partners.
         """
-
         gate = gate.upper()
-
-        if gate not in {
-            "RX",
-            "RY",
-        }:
-            raise InvalidMoveError(
-                "La rotación inteligente "
-                "solo admite RX y RY."
-            )
-
-        self._validate_tile(
-            target_tile
-        )
-
+        if gate not in {"RX", "RY",}:
+            raise InvalidMoveError("La rotación inteligente "
+                "solo admite RX y RY.")
+        self._validate_tile(target_tile)
         if target_tile in self._measured_tiles:
-            raise InvalidMoveError(
-                "La casilla objetivo ya fue medida."
-            )
-
+            raise InvalidMoveError( "La casilla objetivo ya fue medida.")
         if maximum_angle_degrees <= 0:
-            raise ValueError(
-                "maximum_angle_degrees debe ser positivo."
-            )
-
+            raise ValueError( "maximum_angle_degrees debe ser positivo.")
         if step_degrees <= 0:
-            raise ValueError(
-                "step_degrees debe ser positivo."
-            )
-
+            raise ValueError("step_degrees debe ser positivo.")
         if random_top_k <= 0:
-            raise ValueError(
-                "random_top_k debe ser positivo."
-            )
-
-        available_partners = [
-            tile
-            for tile in range(
-                self.tile_count
-            )
-            if (
-                tile != target_tile
-                and tile
-                not in self._measured_tiles
-            )
-        ]
-
+            raise ValueError("random_top_k debe ser positivo." )
+        available_partners = [tile for tile in range( self.tile_count)
+            if ( tile != target_tile and tile not in self._measured_tiles) ]
         if not available_partners:
-            raise InvalidMoveError(
-                "No hay una casilla partner disponible."
-            )
-
+            raise InvalidMoveError( "No hay una casilla partner disponible.")
         best_reducing_by_partner: list[
-            _RotationCandidate
-        ] = []
-
-        best_visible_by_partner: list[
-            _RotationCandidate
-        ] = []
-
+            _RotationCandidate] = []
+        best_visible_by_partner: list[_RotationCandidate] = []
         for partner_tile in available_partners:
-            (
-                best_reducing,
-                best_visible,
-            ) = self._best_candidate_for_partner(
-                gate,
+            (best_reducing, best_visible,) = self._best_candidate_for_partner(gate,
                 target_tile,
                 partner_tile,
                 maximum_angle_degrees=(
