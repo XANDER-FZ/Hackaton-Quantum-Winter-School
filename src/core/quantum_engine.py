@@ -1,21 +1,3 @@
-"""Motor cuántico de Quantum Minesweeper.
-
-Modelo:
-    |0> = casilla segura
-    |1> = mina
-
-El tablero completo se representa como un único estado cuántico global.
-
-Solo se almacenan configuraciones que contienen exactamente ``mine_count``
-minas. Las puertas lógicas de dos casillas operan en el subespacio:
-
-    |0_L> = |01>
-    |1_L> = |10>
-
-De esta manera, las minas pueden redistribuirse entre casillas sin crearse
-ni destruirse.
-"""
-
 from __future__ import annotations
 
 from dataclasses import dataclass
