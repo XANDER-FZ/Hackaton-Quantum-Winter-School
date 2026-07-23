@@ -1,0 +1,518 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;800&display=swap');
+
+:root {
+    --bg-dark: #020611;
+    --bg-panel: rgba(6, 12, 24, 0.88);
+    --bg-panel-2: rgba(10, 18, 35, 0.92);
+
+    --cyan: #4ff7ea;
+    --cyan-soft: #7afcff;
+    --green-neon: #53f6b0;
+    --purple: #b56cff;
+    --purple-soft: #d39aff;
+
+    --text-main: #f3fbff;
+    --text-soft: #b8d0e3;
+
+    --border-soft: rgba(79, 247, 234, 0.22);
+    --border-strong: rgba(181, 108, 255, 0.35);
+
+    --shadow-cyan: 0 0 10px rgba(79, 247, 234, 0.45),
+                   0 0 22px rgba(79, 247, 234, 0.18);
+
+    --shadow-purple: 0 0 10px rgba(181, 108, 255, 0.45),
+                     0 0 22px rgba(181, 108, 255, 0.18);
+}
+
+/* ==========================================
+   CONFIGURACIÓN GENERAL
+   ========================================== */
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: 'Orbitron', sans-serif;
+    color: var(--text-main);
+    background-color: var(--bg-dark);
+
+    /* Fondo con rejilla similar a tu portada */
+    background-image:
+        linear-gradient(rgba(79, 247, 234, 0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(79, 247, 234, 0.06) 1px, transparent 1px),
+        radial-gradient(circle at top, rgba(0, 180, 255, 0.10), transparent 35%);
+    background-size: 44px 44px, 44px 44px, 100% 100%;
+    background-position: center center;
+}
+
+.nicegui-content {
+    width: 100%;
+    max-width: none;
+    padding: 0 !important;
+}
+
+.ventana-juego {
+    width: 100%;
+    min-height: 100vh;
+    gap: 0 !important;
+}
+
+/* ==========================================
+   ENCABEZADO
+   ========================================== */
+
+.encabezado-juego {
+    width: 100%;
+    min-height: 90px;
+    padding: 16px 28px;
+
+    display: grid;
+    grid-template-columns: 150px 1fr 150px;
+    align-items: center;
+
+    background: rgba(1, 5, 14, 0.65);
+    border-bottom: 1px solid rgba(79, 247, 234, 0.10);
+    backdrop-filter: blur(8px);
+}
+
+.contenedor-brand {
+    align-items: center;
+    justify-self: center;
+    gap: 2px !important;
+}
+
+.fila-brand {
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+}
+
+.titulo-brand {
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    line-height: 1;
+}
+
+.titulo-morado {
+    color: var(--purple);
+    text-shadow:
+        0 0 8px rgba(181, 108, 255, 0.95),
+        0 0 20px rgba(181, 108, 255, 0.55),
+        0 0 35px rgba(181, 108, 255, 0.35);
+}
+
+.titulo-verde {
+    color: var(--green-neon);
+    text-shadow:
+        0 0 8px rgba(83, 246, 176, 0.95),
+        0 0 20px rgba(83, 246, 176, 0.55),
+        0 0 35px rgba(83, 246, 176, 0.35);
+}
+
+.subtitulo-brand {
+    max-width: 700px;
+    color: var(--text-soft);
+    font-size: 0.78rem;
+    text-align: center;
+    letter-spacing: 0.03em;
+}
+
+.boton-pastilla-secundario {
+    color: var(--cyan-soft) !important;
+    background: rgba(5, 15, 30, 0.7) !important;
+    border: 1px solid rgba(79, 247, 234, 0.45);
+    border-radius: 999px;
+    box-shadow: var(--shadow-cyan);
+    padding: 6px 14px;
+}
+
+.boton-reinicio {
+    justify-self: end;
+}
+
+/* ==========================================
+   CONTENIDO PRINCIPAL
+   ========================================== */
+
+.contenido-juego {
+    width: 100%;
+    flex: 1;
+    padding: 28px;
+
+    display: grid;
+    grid-template-columns: minmax(520px, 1fr) 340px;
+    gap: 24px;
+    align-items: stretch;
+}
+
+.panel-tablero,
+.panel-cuantico {
+    background: var(--bg-panel);
+    border: 1px solid var(--border-soft);
+    border-radius: 22px;
+    backdrop-filter: blur(10px);
+    box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.02) inset,
+        0 0 25px rgba(79, 247, 234, 0.08),
+        0 0 40px rgba(181, 108, 255, 0.05);
+}
+
+/* ==========================================
+   TABLERO
+   ========================================== */
+
+.panel-tablero {
+    min-width: 0;
+    padding: 24px;
+
+    display: flex;
+    flex-direction: column;
+}
+
+.cabecera-panel {
+    width: 100%;
+    margin-bottom: 20px;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.titulo-seccion {
+    color: var(--cyan-soft);
+    font-size: 1.15rem;
+    font-weight: 700;
+    text-shadow: 0 0 12px rgba(79, 247, 234, 0.45);
+}
+
+.descripcion-seccion {
+    color: var(--text-soft);
+    font-size: 0.78rem;
+}
+
+.etiqueta-dimension {
+    padding: 6px 14px;
+    color: var(--cyan-soft);
+    background: rgba(5, 15, 30, 0.72);
+    border: 1px solid rgba(79, 247, 234, 0.35);
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    box-shadow: var(--shadow-cyan);
+}
+
+.contenedor-tablero {
+    width: 100%;
+    flex: 1;
+    min-height: 530px;
+    padding: 24px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(79, 247, 234, 0.03),
+            rgba(181, 108, 255, 0.03)
+        );
+
+    border: 1px solid rgba(79, 247, 234, 0.16);
+    border-radius: 18px;
+}
+
+.tablero-demostracion {
+    display: grid;
+    grid-template-columns: repeat(8, 56px);
+    gap: 8px;
+}
+
+.celda-demostracion {
+    width: 56px;
+    min-width: 56px;
+    height: 56px;
+    padding: 0;
+    border-radius: 10px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(24, 44, 71, 0.95),
+            rgba(10, 22, 39, 0.98)
+        );
+
+    border: 1px solid rgba(79, 247, 234, 0.18);
+    color: var(--text-main);
+
+    box-shadow:
+        inset 0 0 8px rgba(79, 247, 234, 0.05),
+        0 0 8px rgba(0, 0, 0, 0.22);
+
+    transition:
+        transform 0.15s ease,
+        box-shadow 0.15s ease,
+        border-color 0.15s ease;
+}
+
+.celda-demostracion:hover {
+    transform: translateY(-2px) scale(1.03);
+    border-color: rgba(79, 247, 234, 0.65);
+    box-shadow:
+        0 0 10px rgba(79, 247, 234, 0.30),
+        0 0 22px rgba(79, 247, 234, 0.16),
+        inset 0 0 12px rgba(79, 247, 234, 0.08);
+}
+
+/* ==========================================
+   PANEL CUÁNTICO
+   ========================================== */
+
+.panel-cuantico {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.cabecera-panel-cuantico {
+    align-items: center;
+    gap: 10px;
+}
+
+.icono-panel-cuantico,
+.icono-bloque,
+.icono-estado {
+    color: var(--cyan-soft);
+    text-shadow: 0 0 12px rgba(79, 247, 234, 0.55);
+}
+
+.icono-panel-cuantico {
+    font-size: 2rem;
+}
+
+.bloque-panel {
+    width: 100%;
+    padding: 16px;
+    background: var(--bg-panel-2);
+    border: 1px solid rgba(79, 247, 234, 0.14);
+    border-radius: 16px;
+    box-shadow: 0 0 18px rgba(79, 247, 234, 0.03);
+}
+
+.titulo-bloque {
+    align-items: center;
+    gap: 8px;
+}
+
+.nombre-bloque {
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.texto-bloque {
+    margin-top: 6px;
+    margin-bottom: 12px;
+    color: var(--text-soft);
+    font-size: 0.75rem;
+    line-height: 1.45;
+}
+
+.lista-compuertas {
+    width: 100%;
+    gap: 8px !important;
+}
+
+.boton-compuerta {
+    width: 100%;
+    justify-content: flex-start;
+    color: var(--text-main) !important;
+    background:
+        linear-gradient(
+            90deg,
+            rgba(79, 247, 234, 0.10),
+            rgba(181, 108, 255, 0.10)
+        ) !important;
+    border: 1px solid rgba(79, 247, 234, 0.24);
+    border-radius: 999px;
+    padding: 8px 14px;
+    letter-spacing: 0.03em;
+}
+
+.boton-compuerta:hover {
+    border-color: rgba(79, 247, 234, 0.55);
+    box-shadow: 0 0 12px rgba(79, 247, 234, 0.16);
+}
+
+.fila-probabilidad {
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.valor-probabilidad {
+    color: var(--text-soft);
+    font-size: 0.8rem;
+}
+
+.porcentaje-probabilidad {
+    color: var(--green-neon);
+    font-size: 1.05rem;
+    font-weight: 700;
+    text-shadow: 0 0 10px rgba(83, 246, 176, 0.35);
+}
+
+.barra-probabilidad {
+    margin-top: 8px;
+    color: var(--cyan);
+}
+
+.circuito-provisional {
+    min-height: 115px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border: 1px dashed rgba(79, 247, 234, 0.20);
+    border-radius: 12px;
+}
+
+.icono-circuito {
+    color: var(--purple-soft);
+    font-size: 2.1rem;
+    text-shadow: 0 0 10px rgba(181, 108, 255, 0.5);
+}
+
+.texto-circuito {
+    margin-top: 6px;
+    font-size: 0.8rem;
+}
+
+.detalle-circuito {
+    color: var(--text-soft);
+    font-size: 0.68rem;
+}
+
+.boton-ejecutar {
+    width: 100%;
+    min-height: 52px;
+    color: #081018 !important;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+
+    background:
+        linear-gradient(
+            90deg,
+            var(--cyan) 0%,
+            #66f5f0 45%,
+            var(--purple-soft) 100%
+        ) !important;
+
+    border: none;
+    border-radius: 999px;
+    box-shadow:
+        0 0 12px rgba(79, 247, 234, 0.35),
+        0 0 24px rgba(181, 108, 255, 0.20);
+}
+
+/* ==========================================
+   BARRA DE ESTADO
+   ========================================== */
+
+.barra-estado {
+    width: 100%;
+    min-height: 70px;
+    padding: 10px 24px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: clamp(25px, 6vw, 90px);
+
+    background: rgba(1, 5, 14, 0.78);
+    border-top: 1px solid rgba(79, 247, 234, 0.12);
+    backdrop-filter: blur(8px);
+}
+
+.indicador-estado {
+    align-items: center;
+    gap: 10px;
+}
+
+.texto-indicador {
+    gap: 0 !important;
+}
+
+.etiqueta-estado {
+    color: var(--text-soft);
+    font-size: 0.68rem;
+}
+
+.valor-estado {
+    color: var(--text-main);
+    font-size: 0.92rem;
+    font-weight: 700;
+}
+
+/* ==========================================
+   RESPONSIVE
+   ========================================== */
+
+@media (max-width: 1100px) {
+    .contenido-juego {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 800px) {
+    .encabezado-juego {
+        grid-template-columns: 100px 1fr 70px;
+        padding: 12px;
+    }
+
+    .titulo-brand {
+        font-size: 1.15rem;
+    }
+
+    .subtitulo-brand {
+        font-size: 0.65rem;
+        max-width: 95%;
+    }
+
+    .contenido-juego {
+        padding: 14px;
+    }
+
+    .panel-tablero,
+    .panel-cuantico {
+        padding: 14px;
+    }
+
+    .contenedor-tablero {
+        min-height: 390px;
+        padding: 12px;
+    }
+
+    .tablero-demostracion {
+        grid-template-columns: repeat(8, 38px);
+        gap: 5px;
+    }
+
+    .celda-demostracion {
+        width: 38px;
+        min-width: 38px;
+        height: 38px;
+    }
+
+    .barra-estado {
+        justify-content: space-around;
+        gap: 10px;
+        padding: 10px;
+    }
+
+    .etiqueta-estado {
+        display: none;
+    }
+}
