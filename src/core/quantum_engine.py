@@ -13,27 +13,17 @@ ComplexVector = NDArray[np.complex128]
 ComplexMatrix = NDArray[np.complex128]
 
 
-# =====================================================================
 # EXCEPCIONES
-# =====================================================================
-
-
 class QuantumEngineError(Exception):
     """Error base del motor cuántico."""
-
 
 class InvalidBoardError(QuantumEngineError, ValueError):
     """Configuración inválida del tablero."""
 
-
 class InvalidMoveError(QuantumEngineError, RuntimeError):
     """Acción no permitida en el estado actual de la partida."""
 
-
-# =====================================================================
 # RESULTADOS
-# =====================================================================
-
 
 @dataclass(frozen=True, slots=True)
 class MeasurementResult:
