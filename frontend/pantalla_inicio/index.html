@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
+
+  <title>Buscaminas Quaktico</title>
+
+  <!-- Estilos de la pantalla de inicio -->
+  <link
+    rel="stylesheet"
+    href="styles.css"
+  />
+</head>
+
+<body>
+  <div class="app-container">
+
+    <!-- =====================================
+         PANTALLA DE INICIO
+         ===================================== -->
+
+    <section
+      id="main-menu"
+      class="screen active-screen"
+    >
+      <!-- Rejilla futurista del fondo -->
+      <div
+        class="grid-background"
+        aria-hidden="true"
+      ></div>
+
+      <div class="menu-content">
+
+        <!-- Título principal -->
+        <header class="menu-header">
+          <h1 class="game-title">
+            Buscaminas
+            <span class="title-highlight">
+              Quaktico
+            </span>
+          </h1>
+
+          <p class="game-subtitle">
+            Explora el campo cuántico y evita minas mediante
+            compuertas cuánticas.
+          </p>
+        </header>
+
+        <!-- Botón START y patitos -->
+        <main class="menu-main">
+          <div class="ducks-container">
+
+            <div
+              class="duck neon-duck duck-left"
+              aria-hidden="true"
+            >
+              🐤
+            </div>
+
+            <button
+              id="start-btn"
+              class="btn btn-neon btn-start"
+              type="button"
+            >
+              START
+            </button>
+
+            <div
+              class="duck neon-duck duck-right"
+              aria-hidden="true"
+            >
+              🐤
+            </div>
+
+          </div>
+        </main>
+
+        <!-- Botones inferiores -->
+        <footer class="menu-footer">
+
+          <button
+            id="indicaciones-btn"
+            class="btn btn-neon btn-secondary"
+            type="button"
+          >
+            Indicaciones
+          </button>
+
+          <button
+            id="conceptos-btn"
+            class="btn btn-neon btn-secondary"
+            type="button"
+          >
+            Conceptos básicos
+          </button>
+
+        </footer>
+      </div>
+    </section>
+  </div>
+
+
+  <!-- =====================================
+       MODAL DE INDICACIONES
+       ===================================== -->
+
+  <div
+    id="indicaciones-modal"
+    class="modal-overlay"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="titulo-indicaciones"
+  >
+    <div class="modal">
+
+      <header class="modal-header">
+        <h2 id="titulo-indicaciones">
+          Indicaciones
+        </h2>
+
+        <button
+          class="modal-close"
+          type="button"
+          data-close="indicaciones-modal"
+          aria-label="Cerrar indicaciones"
+        >
+          ✕
+        </button>
+      </header>
+
+      <div class="modal-body">
+        <p>
+          En Buscaminas Quaktico, el jugador explora un tablero
+          usando compuertas cuánticas. La meta es encontrar zonas
+          seguras, reducir la incertidumbre y evitar minas.
+        </p>
+
+        <p>
+          Primero selecciona una compuerta y luego elige una
+          casilla del tablero.
+        </p>
+
+        <ul class="modal-list">
+          <li>
+            H ayuda a explorar posibilidades mediante superposición.
+          </li>
+
+          <li>
+            X representa un cambio de estado.
+          </li>
+
+          <li>
+            Y combina cambio de estado y fase.
+          </li>
+
+          <li>
+            Z modifica la fase y la interferencia.
+          </li>
+
+          <li>
+            Medir representa el colapso del estado cuántico.
+          </li>
+        </ul>
+      </div>
+
+      <footer class="modal-footer">
+        <button
+          class="btn btn-neon btn-small"
+          type="button"
+          data-close="indicaciones-modal"
+        >
+          Cerrar
+        </button>
+      </footer>
+
+    </div>
+  </div>
+
+
+  <!-- =====================================
+       MODAL DE CONCEPTOS BÁSICOS
+       ===================================== -->
+
+  <div
+    id="conceptos-modal"
+    class="modal-overlay"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="titulo-conceptos"
+  >
+    <div class="modal">
+
+      <header class="modal-header">
+        <h2 id="titulo-conceptos">
+          Conceptos básicos
+        </h2>
+
+        <button
+          class="modal-close"
+          type="button"
+          data-close="conceptos-modal"
+          aria-label="Cerrar conceptos básicos"
+        >
+          ✕
+        </button>
+      </header>
+
+      <div class="modal-body">
+        <div class="concept-slider">
+
+          <button
+            id="prevConcept"
+            class="slide-arrow"
+            type="button"
+            aria-label="Concepto anterior"
+          >
+            ‹
+          </button>
+
+          <div class="concept-slide">
+
+            <h3 id="conceptTitle">
+              Qubit
+            </h3>
+
+            <p id="conceptDescription">
+              Unidad básica de información cuántica. Puede
+              representar 0, 1 o una combinación antes de medirse.
+            </p>
+
+            <span id="conceptCounter">
+              1 / 6
+            </span>
+
+          </div>
+
+          <button
+            id="nextConcept"
+            class="slide-arrow"
+            type="button"
+            aria-label="Siguiente concepto"
+          >
+            ›
+          </button>
+
+        </div>
+      </div>
+
+      <footer class="modal-footer">
+        <button
+          class="btn btn-neon btn-small"
+          type="button"
+          data-close="conceptos-modal"
+        >
+          Cerrar
+        </button>
+      </footer>
+
+    </div>
+  </div>
+
+
+  <!-- =====================================
+       EFECTOS DE SONIDO
+       ===================================== -->
+
+  <audio
+    id="sec-sound"
+    src="secaudio.mp3"
+    preload="auto"
+  ></audio>
+
+  <audio
+    id="start-sound"
+    src="start.mp3"
+    preload="auto"
+  ></audio>
+
+
+  <!-- JavaScript principal -->
+  <script src="script.js"></script>
+</body>
+</html>

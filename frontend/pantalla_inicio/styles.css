@@ -1,0 +1,1105 @@
+@import url(
+  "https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&family=Press+Start+2P&display=swap"
+);
+
+
+/* ==========================================================
+   VARIABLES GENERALES
+   ========================================================== */
+
+:root {
+  --fondo-principal: #02040a;
+  --fondo-superior: #061726;
+  --fondo-modal: #071226;
+
+  --cyan: #5ce1e6;
+  --cyan-claro: #9cffff;
+  --verde: #3cfca3;
+  --morado: #b26dff;
+  --amarillo: #ffe76b;
+
+  --texto-principal: #e0f7ff;
+  --texto-secundario: #b9ddff;
+  --texto-modal: #c9efff;
+
+  --borde-cyan: rgba(92, 225, 230, 0.55);
+  --borde-morado: rgba(178, 109, 255, 0.55);
+
+  --sombra-cyan:
+    0 0 12px rgba(92, 225, 230, 0.75),
+    0 0 26px rgba(60, 252, 163, 0.35);
+
+  --sombra-morada:
+    0 0 14px rgba(178, 109, 255, 0.65),
+    0 0 32px rgba(178, 109, 255, 0.28);
+}
+
+
+/* ==========================================================
+   REINICIO GENERAL
+   ========================================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  min-height: 100%;
+  background: var(--fondo-principal);
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  min-height: 100dvh;
+
+  overflow-x: hidden;
+  overflow-y: hidden;
+
+  font-family: "Orbitron", system-ui, sans-serif;
+  color: var(--texto-principal);
+
+  background:
+    radial-gradient(
+      circle at 50% 0%,
+      var(--fondo-superior) 0%,
+      var(--fondo-principal) 43%,
+      #000000 100%
+    );
+}
+
+button {
+  font: inherit;
+}
+
+button,
+audio {
+  -webkit-tap-highlight-color: transparent;
+}
+
+audio {
+  display: none;
+}
+
+
+/* ==========================================================
+   CONTENEDOR GENERAL
+   ========================================================== */
+
+.app-container {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+.screen {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+
+  display: none;
+  overflow: hidden;
+}
+
+.active-screen {
+  display: block;
+}
+
+
+/* ==========================================================
+   FONDO CON REJILLA
+   ========================================================== */
+
+.grid-background {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+
+  background-image:
+    linear-gradient(
+      90deg,
+      rgba(92, 225, 230, 0.10) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      180deg,
+      rgba(178, 109, 255, 0.10) 1px,
+      transparent 1px
+    );
+
+  background-size: 40px 40px;
+  background-position: center;
+
+  opacity: 0.68;
+
+  filter:
+    drop-shadow(
+      0 0 10px rgba(0, 255, 170, 0.32)
+    );
+
+  animation: mover-rejilla 24s linear infinite;
+}
+
+.grid-background::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  background:
+    radial-gradient(
+      circle at center,
+      rgba(92, 225, 230, 0.05),
+      transparent 55%
+    );
+}
+
+@keyframes mover-rejilla {
+  from {
+    background-position: 0 0;
+  }
+
+  to {
+    background-position: 40px 40px;
+  }
+}
+
+
+/* ==========================================================
+   CONTENIDO DEL MENÚ
+   ========================================================== */
+
+.menu-content {
+  position: relative;
+  z-index: 1;
+
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+
+  padding: clamp(2.5rem, 7vh, 5rem) 2rem 2rem;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+
+/* ==========================================================
+   ENCABEZADO Y TÍTULO
+   ========================================================== */
+
+.menu-header {
+  width: 100%;
+  margin-bottom: clamp(1.5rem, 5vh, 3rem);
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  text-align: center;
+}
+
+.game-title {
+  max-width: 1500px;
+
+  font-family: "Press Start 2P", system-ui, sans-serif;
+  font-size: clamp(2.4rem, 5.8vw, 5rem);
+  line-height: 1.28;
+  letter-spacing: 0.08em;
+
+  text-transform: uppercase;
+  color: var(--morado);
+
+  text-shadow:
+    0 0 8px rgba(178, 109, 255, 0.95),
+    0 0 22px rgba(178, 109, 255, 0.62),
+    0 0 38px rgba(92, 225, 230, 0.45);
+
+  animation: brillo-titulo 3.2s ease-in-out infinite alternate;
+}
+
+.title-highlight {
+  color: var(--verde);
+
+  text-shadow:
+    0 0 8px rgba(60, 252, 163, 0.95),
+    0 0 22px rgba(60, 252, 163, 0.58),
+    0 0 42px rgba(92, 225, 230, 0.46);
+}
+
+.game-subtitle {
+  width: min(680px, 90%);
+  margin: 1.5rem auto 0;
+
+  color: var(--texto-secundario);
+
+  font-size: 0.95rem;
+  line-height: 1.6;
+  text-align: center;
+}
+
+@keyframes brillo-titulo {
+  from {
+    filter: brightness(0.92);
+  }
+
+  to {
+    filter: brightness(1.12);
+  }
+}
+
+
+/* ==========================================================
+   ZONA CENTRAL: PATITOS Y START
+   ========================================================== */
+
+.menu-main {
+  width: 100%;
+  flex: 1;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  transform: translateY(-60px);
+}
+
+.ducks-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(1rem, 3vw, 1.75rem);
+}
+
+.duck {
+  font-size: clamp(2.2rem, 4vw, 3.2rem);
+  user-select: none;
+}
+
+.neon-duck {
+  color: var(--amarillo);
+
+  text-shadow:
+    0 0 10px rgba(255, 231, 107, 0.95),
+    0 0 24px rgba(255, 255, 255, 0.62),
+    0 0 40px rgba(255, 231, 107, 0.72);
+
+  animation:
+    pato-flotante 3.5s ease-in-out infinite alternate;
+}
+
+.duck-right {
+  animation-delay: 0.45s;
+}
+
+@keyframes pato-flotante {
+  from {
+    transform: translateY(0) rotate(-2deg);
+  }
+
+  to {
+    transform: translateY(-10px) rotate(2deg);
+  }
+}
+
+
+/* ==========================================================
+   BOTONES GENERALES
+   ========================================================== */
+
+.btn {
+  position: relative;
+  overflow: hidden;
+
+  border: none;
+  border-radius: 999px;
+
+  cursor: pointer;
+
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  background:
+    linear-gradient(
+      110deg,
+      transparent 20%,
+      rgba(255, 255, 255, 0.26) 48%,
+      transparent 76%
+    );
+
+  transform: translateX(-130%);
+  transition: transform 0.55s ease;
+}
+
+.btn:hover::before {
+  transform: translateX(130%);
+}
+
+.btn:focus-visible {
+  outline: 3px solid rgba(255, 255, 255, 0.92);
+  outline-offset: 4px;
+}
+
+
+/* ==========================================================
+   BOTONES NEÓN
+   ========================================================== */
+
+.btn-neon {
+  padding: 0.9rem 2.6rem;
+
+  color: #02040a;
+
+  background:
+    radial-gradient(
+      circle at 20% 0%,
+      var(--verde) 0%,
+      var(--cyan) 42%,
+      var(--morado) 100%
+    );
+
+  box-shadow:
+    0 0 12px rgba(92, 225, 230, 0.8),
+    0 0 26px rgba(60, 252, 163, 0.55),
+    0 0 40px rgba(178, 109, 255, 0.58);
+}
+
+.btn-neon:hover,
+.btn-neon:focus-visible {
+  color: var(--verde);
+
+  border-color: var(--verde);
+
+  background:
+    rgba(2, 4, 10, 0.88);
+
+  transform:
+    translateY(-2px)
+    scale(1.05);
+
+  text-shadow:
+    0 0 10px rgba(60, 252, 163, 1),
+    0 0 24px rgba(60, 252, 163, 0.85);
+
+  box-shadow:
+    0 0 16px rgba(60, 252, 163, 0.82),
+    0 0 32px rgba(92, 225, 230, 0.52),
+    inset 0 0 18px rgba(60, 252, 163, 0.10);
+}
+
+.btn-neon:active {
+  transform:
+    translateY(1px)
+    scale(0.98);
+}
+
+
+/* ==========================================================
+   BOTÓN START
+   ========================================================== */
+
+.btn-start {
+  min-width: 320px;
+  padding: 1.6rem 5.5rem;
+
+  border: 2px solid var(--cyan);
+
+  background:
+    rgba(2, 4, 10, 0.72);
+
+  color: var(--cyan);
+
+  font-family: "Press Start 2P", system-ui, sans-serif;
+  font-size: 1.45rem;
+
+  text-shadow:
+    0 0 8px rgba(92, 225, 230, 1),
+    0 0 18px rgba(60, 252, 163, 0.86),
+    0 0 34px rgba(178, 109, 255, 0.72);
+
+  box-shadow:
+    0 0 12px rgba(92, 225, 230, 0.92),
+    0 0 28px rgba(60, 252, 163, 0.48),
+    inset 0 0 18px rgba(92, 225, 230, 0.22);
+}
+
+.btn-start:hover,
+.btn-start:focus-visible {
+  color: var(--verde);
+
+  border-color: var(--verde);
+
+  background:
+    rgba(2, 10, 14, 0.82);
+
+  box-shadow:
+    0 0 16px rgba(60, 252, 163, 0.9),
+    0 0 34px rgba(92, 225, 230, 0.58),
+    inset 0 0 22px rgba(60, 252, 163, 0.16);
+}
+
+
+/* Estado que aparece durante los 500 ms del sonido */
+.btn-start:disabled {
+  cursor: wait;
+  pointer-events: none;
+
+  color: var(--cyan-claro);
+  border-color: var(--cyan-claro);
+
+  opacity: 0.78;
+
+  animation:
+    boton-cargando 0.45s ease-in-out infinite alternate;
+}
+
+@keyframes boton-cargando {
+  from {
+    box-shadow:
+      0 0 10px rgba(92, 225, 230, 0.68),
+      inset 0 0 14px rgba(92, 225, 230, 0.18);
+  }
+
+  to {
+    box-shadow:
+      0 0 24px rgba(92, 225, 230, 1),
+      0 0 42px rgba(60, 252, 163, 0.48),
+      inset 0 0 24px rgba(92, 225, 230, 0.28);
+  }
+}
+
+
+/* ==========================================================
+   BOTONES SECUNDARIOS
+   ========================================================== */
+
+.btn-secondary {
+  min-width: 230px;
+  margin: 0 0.5rem;
+}
+
+.btn-small {
+  min-width: 110px;
+  padding: 0.55rem 1.4rem;
+
+  font-size: 0.75rem;
+}
+
+
+/* ==========================================================
+   PIE DEL MENÚ
+   ========================================================== */
+
+.menu-footer {
+  width: min(760px, 100%);
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 1.5rem;
+}
+
+
+/* ==========================================================
+   FONDO DE LOS MODALES
+   ========================================================== */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+
+  display: none;
+  align-items: center;
+  justify-content: center;
+
+  padding: 1rem;
+
+  background:
+    rgba(0, 0, 0, 0.68);
+
+  backdrop-filter:
+    blur(7px);
+
+  animation:
+    mostrar-overlay 0.2s ease-out;
+}
+
+@keyframes mostrar-overlay {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+
+/* ==========================================================
+   VENTANA DE MODAL
+   ========================================================== */
+
+.modal {
+  width: min(540px, 92vw);
+  max-height: min(720px, 90vh);
+
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  border:
+    1px solid var(--borde-cyan);
+
+  border-radius: 1rem;
+
+  background:
+    radial-gradient(
+      circle at 50% 0%,
+      #0d2140 0%,
+      var(--fondo-modal) 40%,
+      #02040a 100%
+    );
+
+  box-shadow:
+    var(--sombra-cyan),
+    var(--sombra-morada);
+
+  animation:
+    mostrar-modal 0.25s ease-out;
+}
+
+@keyframes mostrar-modal {
+  from {
+    transform:
+      translateY(-24px)
+      scale(0.97);
+
+    opacity: 0;
+  }
+
+  to {
+    transform:
+      translateY(0)
+      scale(1);
+
+    opacity: 1;
+  }
+}
+
+
+/* ==========================================================
+   ENCABEZADO Y PIE DEL MODAL
+   ========================================================== */
+
+.modal-header,
+.modal-footer {
+  display: flex;
+  align-items: center;
+
+  padding: 1rem 1.1rem;
+}
+
+.modal-header {
+  justify-content: space-between;
+
+  border-bottom:
+    1px solid rgba(92, 225, 230, 0.28);
+
+  background:
+    rgba(92, 225, 230, 0.025);
+}
+
+.modal-footer {
+  justify-content: flex-end;
+
+  border-top:
+    1px solid rgba(92, 225, 230, 0.16);
+}
+
+.modal-header h2 {
+  color: var(--cyan);
+
+  font-size: 1.12rem;
+  letter-spacing: 0.05em;
+
+  text-shadow:
+    0 0 10px rgba(92, 225, 230, 0.62);
+}
+
+
+/* ==========================================================
+   BOTÓN X DEL MODAL
+   ========================================================== */
+
+.modal-close {
+  width: 38px;
+  height: 38px;
+
+  display: grid;
+  place-items: center;
+
+  border:
+    1px solid transparent;
+
+  border-radius: 50%;
+
+  background:
+    transparent;
+
+  color:
+    var(--texto-secundario);
+
+  cursor: pointer;
+
+  font-size: 1rem;
+
+  transition:
+    transform 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.modal-close:hover,
+.modal-close:focus-visible {
+  color: var(--verde);
+
+  border-color:
+    rgba(60, 252, 163, 0.65);
+
+  transform:
+    scale(1.08);
+
+  box-shadow:
+    0 0 12px rgba(60, 252, 163, 0.48);
+
+  outline: none;
+}
+
+
+/* ==========================================================
+   CUERPO DEL MODAL
+   ========================================================== */
+
+.modal-body {
+  padding: 1.1rem;
+
+  color: var(--texto-modal);
+
+  font-size: 0.9rem;
+  line-height: 1.65;
+}
+
+.modal-body p {
+  margin-bottom: 0.85rem;
+}
+
+.modal-list {
+  margin:
+    0.65rem
+    0
+    0
+    1.25rem;
+
+  padding-left: 0.45rem;
+}
+
+.modal-list li {
+  margin-bottom: 0.5rem;
+}
+
+.modal-list li::marker {
+  color: var(--verde);
+}
+
+
+/* ==========================================================
+   CARRUSEL DE CONCEPTOS
+   ========================================================== */
+
+.concept-slider {
+  min-height: 245px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 1rem;
+}
+
+.concept-slide {
+  flex: 1;
+  min-width: 0;
+
+  padding: 1.5rem;
+
+  border:
+    1px solid rgba(92, 225, 230, 0.34);
+
+  border-radius: 1rem;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(92, 225, 230, 0.075),
+      rgba(178, 109, 255, 0.045)
+    );
+
+  text-align: center;
+
+  box-shadow:
+    inset 0 0 18px rgba(92, 225, 230, 0.13),
+    0 0 18px rgba(178, 109, 255, 0.21);
+}
+
+.concept-slide h3 {
+  margin-bottom: 1rem;
+
+  color: var(--verde);
+
+  font-size: 1.25rem;
+
+  text-shadow:
+    0 0 8px rgba(60, 252, 163, 0.9),
+    0 0 20px rgba(92, 225, 230, 0.68);
+}
+
+.concept-slide p {
+  margin-bottom: 1.2rem;
+
+  color: var(--texto-modal);
+
+  line-height: 1.65;
+}
+
+#conceptCounter {
+  display: inline-block;
+
+  color: var(--morado);
+
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+
+  text-shadow:
+    0 0 8px rgba(178, 109, 255, 0.55);
+}
+
+
+/* ==========================================================
+   FLECHAS DEL CARRUSEL
+   ========================================================== */
+
+.slide-arrow {
+  width: 46px;
+  height: 46px;
+  flex: 0 0 46px;
+
+  display: grid;
+  place-items: center;
+
+  border:
+    2px solid var(--cyan);
+
+  border-radius: 50%;
+
+  background:
+    rgba(2, 4, 10, 0.75);
+
+  color:
+    var(--cyan);
+
+  cursor:
+    pointer;
+
+  font-size:
+    2rem;
+
+  line-height:
+    1;
+
+  box-shadow:
+    0 0 12px rgba(92, 225, 230, 0.75),
+    inset 0 0 12px rgba(92, 225, 230, 0.18);
+
+  transition:
+    transform 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.slide-arrow:hover,
+.slide-arrow:focus-visible {
+  color: var(--verde);
+
+  border-color: var(--verde);
+
+  transform: scale(1.08);
+
+  box-shadow:
+    0 0 18px rgba(60, 252, 163, 0.82),
+    inset 0 0 16px rgba(60, 252, 163, 0.20);
+
+  outline: none;
+}
+
+.slide-arrow:active {
+  transform: scale(0.96);
+}
+
+
+/* ==========================================================
+   BARRA DE DESPLAZAMIENTO DEL MODAL
+   ========================================================== */
+
+.modal {
+  scrollbar-width: thin;
+  scrollbar-color:
+    var(--cyan)
+    rgba(2, 4, 10, 0.6);
+}
+
+.modal::-webkit-scrollbar {
+  width: 8px;
+}
+
+.modal::-webkit-scrollbar-track {
+  background:
+    rgba(2, 4, 10, 0.6);
+}
+
+.modal::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+
+  background:
+    linear-gradient(
+      var(--cyan),
+      var(--morado)
+    );
+}
+
+
+/* ==========================================================
+   DISEÑO RESPONSIVO: TABLETS
+   ========================================================== */
+
+@media (max-width: 768px) {
+  body {
+    overflow-y: auto;
+  }
+
+  .menu-content {
+    padding:
+      2.5rem
+      1.25rem
+      1.5rem;
+  }
+
+  .menu-header {
+    margin-bottom:
+      1.5rem;
+  }
+
+  .menu-main {
+    padding:
+      3rem
+      0;
+
+    transform:
+      none;
+  }
+
+  .menu-footer {
+    flex-direction:
+      column;
+
+    gap:
+      1rem;
+  }
+
+  .menu-footer .btn {
+    width:
+      min(360px, 100%);
+
+    margin:
+      0;
+  }
+}
+
+
+/* ==========================================================
+   DISEÑO RESPONSIVO: CELULARES
+   ========================================================== */
+
+@media (max-width: 520px) {
+  .menu-content {
+    padding:
+      1.8rem
+      1rem
+      1.2rem;
+  }
+
+  .game-title {
+    font-size:
+      clamp(1.55rem, 8vw, 2rem);
+
+    line-height:
+      1.45;
+
+    letter-spacing:
+      0.04em;
+  }
+
+  .ducks-container {
+    flex-direction:
+      column;
+
+    gap:
+      1rem;
+  }
+
+  .duck {
+    font-size:
+      2.4rem;
+  }
+
+  .btn-start {
+    width:
+      min(320px, 88vw);
+
+    min-width:
+      0;
+
+    padding:
+      1.35rem
+      2rem;
+
+    font-size:
+      1.15rem;
+  }
+
+  .concept-slider {
+    gap:
+      0.45rem;
+  }
+
+  .concept-slide {
+    padding:
+      1rem
+      0.75rem;
+  }
+
+  .concept-slide h3 {
+    font-size:
+      1.05rem;
+  }
+
+  .concept-slide p {
+    font-size:
+      0.83rem;
+
+    line-height:
+      1.5;
+  }
+
+  .slide-arrow {
+    width:
+      38px;
+
+    height:
+      38px;
+
+    flex-basis:
+      38px;
+
+    font-size:
+      1.6rem;
+  }
+
+  .modal-body {
+    padding:
+      0.9rem;
+
+    font-size:
+      0.84rem;
+  }
+}
+
+
+/* ==========================================================
+   PANTALLAS MUY BAJAS
+   ========================================================== */
+
+@media (max-height: 700px) and (min-width: 769px) {
+  .menu-content {
+    padding-top:
+      2rem;
+  }
+
+  .menu-header {
+    margin-bottom:
+      1rem;
+  }
+
+  .menu-main {
+    transform:
+      translateY(-20px);
+  }
+
+  .game-title {
+    font-size:
+      clamp(2rem, 5vw, 4rem);
+  }
+
+  .btn-start {
+    padding:
+      1.25rem
+      4rem;
+  }
+}
+
+
+/* ==========================================================
+   REDUCIR ANIMACIONES POR ACCESIBILIDAD
+   ========================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior:
+      auto !important;
+
+    animation-duration:
+      0.01ms !important;
+
+    animation-iteration-count:
+      1 !important;
+
+    transition-duration:
+      0.01ms !important;
+  }
+}

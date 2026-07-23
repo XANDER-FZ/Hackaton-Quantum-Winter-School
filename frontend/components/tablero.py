@@ -4,35 +4,36 @@ from nicegui import ui
 
 
 ManejadorCelda = Callable[[int, int], None]
+ManejadorDimension = Callable[[int], None]
 
 
 def crear_tablero(
     al_seleccionar_celda: ManejadorCelda,
-    filas: int = 8,
-    columnas: int = 8,
+    al_cambiar_dimension: ManejadorDimension,
+    dimension: int = 3,
 ) -> None:
     """Crea el panel visual y la cuadrícula del tablero."""
 
     with ui.element('section').classes('panel-tablero'):
 
         crear_cabecera_tablero(
-            filas=filas,
-            columnas=columnas,
+            dimension=dimension,
+            al_cambiar_dimension=al_cambiar_dimension,
         )
 
         with ui.element('div').classes('contenedor-tablero'):
             crear_cuadricula(
-                filas=filas,
-                columnas=columnas,
+                filas=dimension,
+                columnas=dimension,
                 al_seleccionar_celda=al_seleccionar_celda,
             )
 
 
 def crear_cabecera_tablero(
-    filas: int,
-    columnas: int,
+    dimension: int,
+    al_cambiar_dimension: ManejadorDimension,
 ) -> None:
-    """Crea el título y la dimensión del tablero."""
+    """Crea el título y el selector de dimensión."""
 
     with ui.row().classes('cabecera-panel'):
 
@@ -49,10 +50,19 @@ def crear_cabecera_tablero(
                 'descripcion-seccion'
             )
 
-        ui.label(
-            f'{filas} × {columnas}'
+        ui.select(
+            options={
+                3: '3 × 3',
+                4: '4 × 4',
+                5: '5 × 5',
+            },
+            value=dimension,
+            on_change=lambda evento:
+                al_cambiar_dimension(int(evento.value)),
+        ).props(
+            'outlined dense'
         ).classes(
-            'etiqueta-dimension'
+            'selector-dimension'
         )
 
 
@@ -63,7 +73,11 @@ def crear_cuadricula(
 ) -> None:
     """Crea únicamente las casillas del tablero."""
 
-    with ui.element('div').classes('tablero-demostracion'):
+    with ui.element('div').classes(
+    'tablero-demostracion'
+    ).style(
+        f'grid-template-columns: repeat({columnas}, minmax(0, 1fr));'
+    ):
 
         for fila in range(filas):
             for columna in range(columnas):
