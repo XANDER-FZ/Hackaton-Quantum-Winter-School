@@ -135,7 +135,16 @@ function selectGate(gateName) {
 
 // Botón START pasa del menú a la zona de juego
 startBtn.addEventListener("click", () => {
-  showGameScreen();
+  const startSound = document.getElementById("start-sound");
+
+  if (startSound) {
+    startSound.currentTime = 0;
+    startSound.play();
+  }
+
+  setTimeout(() => {
+    showGameScreen();
+  }, 500);
 });
 
 // Botón Volver regresa al menú
@@ -143,13 +152,25 @@ backBtn.addEventListener("click", () => {
   showMainMenu();
 });
 
+// Función para reproducir sonido secundario
+function playSecSound() {
+  const secSound = document.getElementById("sec-sound");
+
+  if (secSound) {
+    secSound.currentTime = 0;
+    secSound.play();
+  }
+}
+
 // Botón Indicaciones abre su modal
 indicacionesBtn.addEventListener("click", () => {
+  playSecSound();
   openModal(indicacionesModal);
 });
 
 // Botón Conceptos básicos abre su modal
 conceptosBtn.addEventListener("click", () => {
+  playSecSound();
   openModal(conceptosModal);
 });
 
