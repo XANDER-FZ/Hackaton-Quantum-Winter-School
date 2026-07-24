@@ -1,74 +1,106 @@
+from __future__ import annotations
+
 from pathlib import Path
 
+from fastapi.responses import HTMLResponse
 from nicegui import app, ui
 
+
+# ============================================================
+# RUTAS
+# ============================================================
 
 RUTA_PROYECTO = Path(__file__).resolve().parent
 
 RUTA_PANTALLA_INICIO = (
     RUTA_PROYECTO
-    / 'frontend'
-    / 'pantalla_inicio'
+    / "frontend"
+    / "pantalla_inicio"
+)
+
+RUTA_INDEX = (
+    RUTA_PANTALLA_INICIO
+    / "index.html"
 )
 
 
-ARCHIVOS_PANTALLA_INICIO = (
-    RUTA_PANTALLA_INICIO / 'index.html',
-    RUTA_PANTALLA_INICIO / 'styles.css',
-    RUTA_PANTALLA_INICIO / 'script.js',
-    RUTA_PANTALLA_INICIO / 'start.mp3',
-    RUTA_PANTALLA_INICIO / 'secaudio.mp3',
-)
+# ============================================================
+# COMPROBACIÓN DE ARCHIVOS
+# ============================================================
+
+if not RUTA_INDEX.exists():
+    raise FileNotFoundError(
+        "No se encontró la pantalla inicial en: "
+        f"{RUTA_INDEX}"
+    )
 
 
-def verificar_estructura() -> None:
-    """Comprueba los archivos necesarios de la pantalla inicial."""
-
-    if not RUTA_PANTALLA_INICIO.is_dir():
-        raise FileNotFoundError(
-            'No se encontró la carpeta de la pantalla de inicio:\n'
-            f'{RUTA_PANTALLA_INICIO}'
-        )
-
-    faltantes = [
-        archivo
-        for archivo in ARCHIVOS_PANTALLA_INICIO
-        if not archivo.is_file()
-    ]
-
-    if faltantes:
-        lista = '\n'.join(str(archivo) for archivo in faltantes)
-
-        raise FileNotFoundError(
-            'Faltan archivos de la pantalla de inicio:\n'
-            f'{lista}'
-        )
-
-
-verificar_estructura()
-
-
+# Permite cargar styles.css, script.js y los audios
+# desde frontend/pantalla_inicio.
 app.add_static_files(
-    url_path='/inicio',
-    local_directory=str(RUTA_PANTALLA_INICIO),
+    "/pantalla_inicio",
+    str(RUTA_PANTALLA_INICIO),
 )
 
 
+# Importar esta página registra la ruta /juego.
 from frontend.pages import ventana_juego  # noqa: E402, F401
 
 
-@ui.page('/')
-def pagina_principal() -> None:
-    """Abre la pantalla HTML de inicio."""
+# ============================================================
+# PANTALLA INICIAL ORIGINAL
+# ============================================================
 
-    ui.navigate.to('/inicio/index.html')
+@app.get("/")
+def pagina_inicio() -> HTMLResponse:
+    """Devuelve el index.html original de la pantalla inicial."""
+
+    contenido_html = RUTA_INDEX.read_text(
+        encoding="utf-8"
+    )
+
+    # Hace que referencias como styles.css, script.js
+    # y start.mp3 se busquen dentro de pantalla_inicio.
+    if "<base " not in contenido_html.lower():
+
+        posicion_head = contenido_html.lower().find(
+            "<head"
+        )
+
+        if posicion_head != -1:
+            final_head = contenido_html.find(
+                ">",
+                posicion_head,
+            )
+
+            if final_head != -1:
+                contenido_html = (
+                    contenido_html[:final_head + 1]
+                    + '\n<base href="/pantalla_inicio/">'
+                    + contenido_html[final_head + 1:]
+                )
+
+    return HTMLResponse(
+        content=contenido_html
+    )
 
 
-if __name__ in {'__main__', '__mp_main__'}:
+# ============================================================
+# EJECUCIÓN
+# ============================================================
+
+if __name__ in {
+    "__main__",
+    "__mp_main__",
+}:
     ui.run(
-        title='Buscaminas Quaktico',
-        host='127.0.0.1',
+        title="Quantum Minesweeper",
+        host="127.0.0.1",
         port=8081,
         reload=False,
-        show=True,
+        show="/",
+
+        storage_secret=(
+            "quantum-minesweeper-hackathon"
+        ),
     )
