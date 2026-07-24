@@ -1,34 +1,57 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
 
   <meta
     name="viewport"
     content="width=device-width, initial-scale=1.0"
-  />
+  >
+
+  <meta
+    name="description"
+    content="Buscaminas Quaktico: juego educativo inspirado en computación cuántica."
+  >
 
   <title>Buscaminas Quaktico</title>
 
-  <!-- Estilos de la pantalla de inicio -->
+  <!-- Fuente principal utilizada por la interfaz -->
+  <link
+    rel="preconnect"
+    href="https://fonts.googleapis.com"
+  >
+
+  <link
+    rel="preconnect"
+    href="https://fonts.gstatic.com"
+    crossorigin
+  >
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  >
+
+  <!-- CSS propio de la pantalla inicial -->
   <link
     rel="stylesheet"
     href="styles.css"
-  />
+  >
 </head>
 
 <body>
   <div class="app-container">
 
-    <!-- =====================================
-         PANTALLA DE INICIO
-         ===================================== -->
+    <!-- ======================================================
+         PANTALLA PRINCIPAL
+         ====================================================== -->
 
     <section
       id="main-menu"
       class="screen active-screen"
+      aria-label="Menú principal"
     >
-      <!-- Rejilla futurista del fondo -->
+      <!-- Rejilla decorativa del fondo -->
       <div
         class="grid-background"
         aria-hidden="true"
@@ -36,51 +59,63 @@
 
       <div class="menu-content">
 
-        <!-- Título principal -->
+        <!-- ==================================================
+             TÍTULO
+             ================================================== -->
+
         <header class="menu-header">
           <h1 class="game-title">
-            Buscaminas
+            BUSCAMINAS
             <span class="title-highlight">
-              Quaktico
+              QUAKTICO
             </span>
           </h1>
 
           <p class="game-subtitle">
-            Explora el campo cuántico y evita minas mediante
-            compuertas cuánticas.
+            Manipula las probabilidades con compuertas
+            cuánticas antes de medir cada casilla.
           </p>
         </header>
 
-        <!-- Botón START y patitos -->
+
+        <!-- ==================================================
+             BOTÓN START
+             ================================================== -->
+
         <main class="menu-main">
           <div class="ducks-container">
 
-            <div
-              class="duck neon-duck duck-left"
+            <span
+              class="duck neon-duck"
               aria-hidden="true"
             >
-              🐤
-            </div>
+              🐥
+            </span>
 
             <button
               id="start-btn"
               class="btn btn-neon btn-start"
               type="button"
+              aria-label="Iniciar partida"
             >
               START
             </button>
 
-            <div
-              class="duck neon-duck duck-right"
+            <span
+              class="duck neon-duck"
               aria-hidden="true"
             >
-              🐤
-            </div>
+              🐥
+            </span>
 
           </div>
         </main>
 
-        <!-- Botones inferiores -->
+
+        <!-- ==================================================
+             BOTONES INFERIORES
+             ================================================== -->
+
         <footer class="menu-footer">
 
           <button
@@ -100,174 +135,181 @@
           </button>
 
         </footer>
+
       </div>
     </section>
-  </div>
 
 
-  <!-- =====================================
-       MODAL DE INDICACIONES
-       ===================================== -->
+    <!-- ======================================================
+         MODAL DE INDICACIONES
+         ====================================================== -->
 
-  <div
-    id="indicaciones-modal"
-    class="modal-overlay"
-    role="dialog"
-    aria-modal="true"
-    aria-labelledby="titulo-indicaciones"
-  >
-    <div class="modal">
+    <div
+      id="indicaciones-modal"
+      class="modal-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-hidden="true"
+      aria-labelledby="indicaciones-title"
+    >
+      <section class="modal">
 
-      <header class="modal-header">
-        <h2 id="titulo-indicaciones">
-          Indicaciones
-        </h2>
-
-        <button
-          class="modal-close"
-          type="button"
-          data-close="indicaciones-modal"
-          aria-label="Cerrar indicaciones"
-        >
-          ✕
-        </button>
-      </header>
-
-      <div class="modal-body">
-        <p>
-          En Buscaminas Quaktico, el jugador explora un tablero
-          usando compuertas cuánticas. La meta es encontrar zonas
-          seguras, reducir la incertidumbre y evitar minas.
-        </p>
-
-        <p>
-          Primero selecciona una compuerta y luego elige una
-          casilla del tablero.
-        </p>
-
-        <ul class="modal-list">
-          <li>
-            H ayuda a explorar posibilidades mediante superposición.
-          </li>
-
-          <li>
-            X representa un cambio de estado.
-          </li>
-
-          <li>
-            Y combina cambio de estado y fase.
-          </li>
-
-          <li>
-            Z modifica la fase y la interferencia.
-          </li>
-
-          <li>
-            Medir representa el colapso del estado cuántico.
-          </li>
-        </ul>
-      </div>
-
-      <footer class="modal-footer">
-        <button
-          class="btn btn-neon btn-small"
-          type="button"
-          data-close="indicaciones-modal"
-        >
-          Cerrar
-        </button>
-      </footer>
-
-    </div>
-  </div>
-
-
-  <!-- =====================================
-       MODAL DE CONCEPTOS BÁSICOS
-       ===================================== -->
-
-  <div
-    id="conceptos-modal"
-    class="modal-overlay"
-    role="dialog"
-    aria-modal="true"
-    aria-labelledby="titulo-conceptos"
-  >
-    <div class="modal">
-
-      <header class="modal-header">
-        <h2 id="titulo-conceptos">
-          Conceptos básicos
-        </h2>
-
-        <button
-          class="modal-close"
-          type="button"
-          data-close="conceptos-modal"
-          aria-label="Cerrar conceptos básicos"
-        >
-          ✕
-        </button>
-      </header>
-
-      <div class="modal-body">
-        <div class="concept-slider">
+        <header class="modal-header">
+          <h2 id="indicaciones-title">
+            Indicaciones
+          </h2>
 
           <button
-            id="prevConcept"
-            class="slide-arrow"
+            class="modal-close"
             type="button"
-            aria-label="Concepto anterior"
+            data-close="indicaciones-modal"
+            aria-label="Cerrar indicaciones"
           >
-            ‹
+            ✕
           </button>
+        </header>
 
-          <div class="concept-slide">
+        <div class="modal-body">
+          <p>
+            El objetivo es descubrir todas las casillas seguras
+            sin encontrar una mina.
+          </p>
 
-            <h3 id="conceptTitle">
-              Qubit
-            </h3>
+          <ul class="modal-list">
+            <li>
+              La primera casilla que selecciones siempre será segura.
+            </li>
 
-            <p id="conceptDescription">
-              Unidad básica de información cuántica. Puede
-              representar 0, 1 o una combinación antes de medirse.
-            </p>
+            <li>
+              Después de la primera medición podrás utilizar
+              una compuerta cuántica.
+            </li>
 
-            <span id="conceptCounter">
-              1 / 6
-            </span>
+            <li>
+              Algunas compuertas necesitan una casilla y otras
+              requieren varias.
+            </li>
+
+            <li>
+              Pulsa las casillas necesarias y después selecciona
+              <strong>EJECUTAR ANÁLISIS</strong>.
+            </li>
+
+            <li>
+              Luego de aplicar una compuerta deberás medir una casilla.
+            </li>
+
+            <li>
+              Ganarás cuando descubras todas las casillas seguras.
+            </li>
+          </ul>
+        </div>
+
+        <footer class="modal-footer">
+          <button
+            class="btn btn-neon btn-small"
+            type="button"
+            data-close="indicaciones-modal"
+          >
+            Cerrar
+          </button>
+        </footer>
+
+      </section>
+    </div>
+
+
+    <!-- ======================================================
+         MODAL DE CONCEPTOS BÁSICOS
+         ====================================================== -->
+
+    <div
+      id="conceptos-modal"
+      class="modal-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-hidden="true"
+      aria-labelledby="conceptos-title"
+    >
+      <section class="modal">
+
+        <header class="modal-header">
+          <h2 id="conceptos-title">
+            Conceptos básicos
+          </h2>
+
+          <button
+            class="modal-close"
+            type="button"
+            data-close="conceptos-modal"
+            aria-label="Cerrar conceptos básicos"
+          >
+            ✕
+          </button>
+        </header>
+
+        <div class="modal-body">
+
+          <div class="concept-slider">
+
+            <button
+              id="prevConcept"
+              class="slide-arrow"
+              type="button"
+              aria-label="Concepto anterior"
+            >
+              ‹
+            </button>
+
+            <article class="concept-slide">
+              <h3 id="conceptTitle">
+                Qubit
+              </h3>
+
+              <p id="conceptDescription">
+                Es la unidad básica de información cuántica.
+                Antes de medirse puede representar una combinación
+                de los estados 0 y 1.
+              </p>
+
+              <span id="conceptCounter">
+                1 / 6
+              </span>
+            </article>
+
+            <button
+              id="nextConcept"
+              class="slide-arrow"
+              type="button"
+              aria-label="Concepto siguiente"
+            >
+              ›
+            </button>
 
           </div>
 
-          <button
-            id="nextConcept"
-            class="slide-arrow"
-            type="button"
-            aria-label="Siguiente concepto"
-          >
-            ›
-          </button>
-
         </div>
-      </div>
 
-      <footer class="modal-footer">
-        <button
-          class="btn btn-neon btn-small"
-          type="button"
-          data-close="conceptos-modal"
-        >
-          Cerrar
-        </button>
-      </footer>
+        <footer class="modal-footer">
+          <button
+            class="btn btn-neon btn-small"
+            type="button"
+            data-close="conceptos-modal"
+          >
+            Cerrar
+          </button>
+        </footer>
 
+      </section>
     </div>
+
   </div>
 
 
-  <!-- =====================================
-       EFECTOS DE SONIDO
-       ===================================== -->
+  <!-- ========================================================
+       AUDIOS
+       Permanecen dentro de frontend/pantalla_inicio
+       ======================================================== -->
 
   <audio
     id="sec-sound"
@@ -282,7 +324,7 @@
   ></audio>
 
 
-  <!-- JavaScript principal -->
+  <!-- JavaScript propio de la pantalla inicial -->
   <script src="script.js"></script>
 </body>
 </html>

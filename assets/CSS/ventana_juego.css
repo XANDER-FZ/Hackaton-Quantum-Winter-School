@@ -1,51 +1,105 @@
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;800&display=swap');
+@import url(
+    'https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800&display=swap'
+);
+
+
+/* ==========================================================
+   VARIABLES GENERALES
+   ========================================================== */
 
 :root {
     --bg-dark: #020611;
-    --bg-panel: rgba(6, 12, 24, 0.88);
-    --bg-panel-2: rgba(10, 18, 35, 0.92);
+    --bg-panel: rgba(6, 12, 24, 0.90);
+    --bg-panel-2: rgba(10, 18, 35, 0.94);
+    --bg-cell: rgba(16, 35, 58, 0.96);
 
     --cyan: #4ff7ea;
     --cyan-soft: #7afcff;
     --green-neon: #53f6b0;
     --purple: #b56cff;
     --purple-soft: #d39aff;
+    --red-neon: #ff5d7d;
+    --yellow-neon: #ffe76b;
 
     --text-main: #f3fbff;
     --text-soft: #b8d0e3;
+    --text-muted: #7890a8;
 
     --border-soft: rgba(79, 247, 234, 0.22);
-    --border-strong: rgba(181, 108, 255, 0.35);
+    --border-medium: rgba(79, 247, 234, 0.42);
+    --border-purple: rgba(181, 108, 255, 0.42);
 
-    --shadow-cyan: 0 0 10px rgba(79, 247, 234, 0.45),
-                   0 0 22px rgba(79, 247, 234, 0.18);
+    --shadow-cyan:
+        0 0 10px rgba(79, 247, 234, 0.45),
+        0 0 22px rgba(79, 247, 234, 0.18);
 
-    --shadow-purple: 0 0 10px rgba(181, 108, 255, 0.45),
-                     0 0 22px rgba(181, 108, 255, 0.18);
+    --shadow-purple:
+        0 0 10px rgba(181, 108, 255, 0.45),
+        0 0 22px rgba(181, 108, 255, 0.18);
+
+    --shadow-green:
+        0 0 12px rgba(83, 246, 176, 0.60),
+        0 0 28px rgba(83, 246, 176, 0.25);
+
+    --shadow-red:
+        0 0 12px rgba(255, 93, 125, 0.58),
+        0 0 28px rgba(255, 93, 125, 0.24);
 }
 
-/* ==========================================
+
+/* ==========================================================
    CONFIGURACIÓN GENERAL
-   ========================================== */
+   ========================================================== */
 
 * {
     box-sizing: border-box;
 }
 
+html {
+    min-height: 100%;
+    background: var(--bg-dark);
+}
+
 body {
     margin: 0;
+    min-width: 320px;
     min-height: 100vh;
-    font-family: 'Orbitron', sans-serif;
+
+    overflow-x: hidden;
+    overflow-y: auto;
+
+    font-family: 'Orbitron', system-ui, sans-serif;
     color: var(--text-main);
+
     background-color: var(--bg-dark);
 
-    /* Fondo con rejilla similar a tu portada */
     background-image:
-        linear-gradient(rgba(79, 247, 234, 0.06) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(79, 247, 234, 0.06) 1px, transparent 1px),
-        radial-gradient(circle at top, rgba(0, 180, 255, 0.10), transparent 35%);
-    background-size: 44px 44px, 44px 44px, 100% 100%;
-    background-position: center center;
+        linear-gradient(
+            rgba(79, 247, 234, 0.055) 1px,
+            transparent 1px
+        ),
+        linear-gradient(
+            90deg,
+            rgba(79, 247, 234, 0.055) 1px,
+            transparent 1px
+        ),
+        radial-gradient(
+            circle at 50% 0%,
+            rgba(0, 180, 255, 0.12),
+            transparent 38%
+        );
+
+    background-size:
+        44px 44px,
+        44px 44px,
+        100% 100%;
+
+    background-position:
+        center center;
+}
+
+button {
+    font-family: inherit;
 }
 
 .nicegui-content {
@@ -60,9 +114,10 @@ body {
     gap: 0 !important;
 }
 
-/* ==========================================
+
+/* ==========================================================
    ENCABEZADO
-   ========================================== */
+   ========================================================== */
 
 .encabezado-juego {
     width: 100%;
@@ -73,15 +128,21 @@ body {
     grid-template-columns: 150px 1fr 150px;
     align-items: center;
 
-    background: rgba(1, 5, 14, 0.65);
-    border-bottom: 1px solid rgba(79, 247, 234, 0.10);
-    backdrop-filter: blur(8px);
+    background: rgba(1, 5, 14, 0.78);
+
+    border-bottom:
+        1px solid rgba(79, 247, 234, 0.12);
+
+    backdrop-filter: blur(10px);
+
+    box-shadow:
+        0 8px 30px rgba(0, 0, 0, 0.22);
 }
 
 .contenedor-brand {
-    align-items: center;
     justify-self: center;
-    gap: 2px !important;
+    align-items: center;
+    gap: 3px !important;
 }
 
 .fila-brand {
@@ -99,6 +160,7 @@ body {
 
 .titulo-morado {
     color: var(--purple);
+
     text-shadow:
         0 0 8px rgba(181, 108, 255, 0.95),
         0 0 20px rgba(181, 108, 255, 0.55),
@@ -107,6 +169,7 @@ body {
 
 .titulo-verde {
     color: var(--green-neon);
+
     text-shadow:
         0 0 8px rgba(83, 246, 176, 0.95),
         0 0 20px rgba(83, 246, 176, 0.55),
@@ -115,58 +178,144 @@ body {
 
 .subtitulo-brand {
     max-width: 700px;
+
     color: var(--text-soft);
-    font-size: 0.78rem;
-    text-align: center;
+
+    font-size: 0.76rem;
+    line-height: 1.5;
     letter-spacing: 0.03em;
+    text-align: center;
 }
 
 .boton-pastilla-secundario {
+    width: fit-content;
+
     color: var(--cyan-soft) !important;
-    background: rgba(5, 15, 30, 0.7) !important;
-    border: 1px solid rgba(79, 247, 234, 0.45);
+
+    background:
+        rgba(5, 15, 30, 0.78) !important;
+
+    border:
+        1px solid rgba(79, 247, 234, 0.45);
+
     border-radius: 999px;
-    box-shadow: var(--shadow-cyan);
+
     padding: 6px 14px;
+
+    box-shadow:
+        var(--shadow-cyan);
+
+    transition:
+        transform 0.18s ease,
+        border-color 0.18s ease,
+        box-shadow 0.18s ease;
+}
+
+.boton-pastilla-secundario:hover {
+    transform: translateY(-2px);
+
+    border-color:
+        rgba(83, 246, 176, 0.75);
+
+    box-shadow:
+        var(--shadow-green);
 }
 
 .boton-reinicio {
     justify-self: end;
 }
 
-/* ==========================================
+
+/* ==========================================================
    CONTENIDO PRINCIPAL
-   ========================================== */
+   ========================================================== */
 
 .contenido-juego {
     width: 100%;
     flex: 1;
+    min-height: 0;
+
     padding: 28px;
 
     display: grid;
-    grid-template-columns: minmax(520px, 1fr) 340px;
+    grid-template-columns:
+        minmax(520px, 1fr)
+        minmax(310px, 350px);
+
     gap: 24px;
     align-items: stretch;
 }
 
 .panel-tablero,
 .panel-cuantico {
-    background: var(--bg-panel);
-    border: 1px solid var(--border-soft);
-    border-radius: 22px;
-    backdrop-filter: blur(10px);
+    min-width: 0;
+
+    background:
+        var(--bg-panel);
+
+    border:
+        1px solid var(--border-soft);
+
+    border-radius:
+        22px;
+
+    backdrop-filter:
+        blur(10px);
+
     box-shadow:
-        0 0 0 1px rgba(255, 255, 255, 0.02) inset,
-        0 0 25px rgba(79, 247, 234, 0.08),
-        0 0 40px rgba(181, 108, 255, 0.05);
+        0 0 0 1px
+            rgba(255, 255, 255, 0.02)
+            inset,
+        0 0 25px
+            rgba(79, 247, 234, 0.08),
+        0 0 40px
+            rgba(181, 108, 255, 0.05);
 }
 
-/* ==========================================
-   TABLERO
-   ========================================== */
+
+/* ==========================================================
+   ENCABEZADOS DE SECCIÓN
+   ========================================================== */
+
+.titulo-seccion {
+    color:
+        var(--cyan-soft);
+
+    font-size:
+        1.15rem;
+
+    font-weight:
+        700;
+
+    text-shadow:
+        0 0 12px
+        rgba(79, 247, 234, 0.45);
+}
+
+12px
+        rgba(79, 247, 234, 0.45);
+}
+
+.descripcion-seccion {
+    max-width:
+        560px;
+
+    color:
+        var(--text-soft);
+
+    font-size:
+        0.78rem;
+
+    line-height:
+        1.55;
+}
+
+
+/* ==========================================================
+   PANEL DEL TABLERO
+   ========================================================== */
 
 .panel-tablero {
-    min-width: 0;
     padding: 24px;
 
     display: flex;
@@ -176,38 +325,53 @@ body {
 .cabecera-panel {
     width: 100%;
     margin-bottom: 20px;
+
     justify-content: space-between;
-    align-items: center;
-}
+    align-items: flex-start;
 
-.titulo-seccion {
-    color: var(--cyan-soft);
-    font-size: 1.15rem;
-    font-weight: 700;
-    text-shadow: 0 0 12px rgba(79, 247, 234, 0.45);
-}
-
-.descripcion-seccion {
-    color: var(--text-soft);
-    font-size: 0.78rem;
+    gap: 18px;
 }
 
 .etiqueta-dimension {
-    padding: 6px 14px;
-    color: var(--cyan-soft);
-    background: rgba(5, 15, 30, 0.72);
-    border: 1px solid rgba(79, 247, 234, 0.35);
-    border-radius: 999px;
-    font-size: 0.78rem;
-    font-weight: 700;
-    box-shadow: var(--shadow-cyan);
+    flex-shrink: 0;
+
+    padding:
+        6px 14px;
+
+    color:
+        var(--cyan-soft);
+
+    background:
+        rgba(5, 15, 30, 0.76);
+
+    border:
+        1px solid
+        rgba(79, 247, 234, 0.35);
+
+    border-radius:
+        999px;
+
+    font-size:
+        0.78rem;
+
+    font-weight:
+        700;
+
+    box-shadow:
+        var(--shadow-cyan);
 }
+
+
+/* ==========================================================
+   CONTENEDOR DEL TABLERO
+   ========================================================== */
 
 .contenedor-tablero {
     width: 100%;
     flex: 1;
-    min-height: 530px;
-    padding: 24px;
+    min-height: 470px;
+
+    padding: 28px;
 
     display: flex;
     justify-content: center;
@@ -216,64 +380,302 @@ body {
     background:
         linear-gradient(
             180deg,
-            rgba(79, 247, 234, 0.03),
-            rgba(181, 108, 255, 0.03)
+            rgba(79, 247, 234, 0.035),
+            rgba(181, 108, 255, 0.035)
         );
 
-    border: 1px solid rgba(79, 247, 234, 0.16);
-    border-radius: 18px;
+    border:
+        1px solid
+        rgba(79, 247, 234, 0.16);
+
+    border-radius:
+        18px;
+
+    box-shadow:
+        inset 0 0 30px
+        rgba(79, 247, 234, 0.025);
 }
+
+
+/* La cantidad de columnas la asigna tablero.py
+   mediante un estilo en línea. */
 
 .tablero-demostracion {
-    display: grid;
-    grid-template-columns: repeat(8, 56px);
-    gap: 8px;
+    width:
+        min(100%, 410px);
+
+    display:
+        grid;
+
+    gap:
+        12px;
 }
 
+
+/* ==========================================================
+   CELDAS DEL TABLERO
+   ========================================================== */
+
 .celda-demostracion {
-    width: 56px;
-    min-width: 56px;
-    height: 56px;
+    width: 100%;
+    min-width: 0;
+
+    aspect-ratio: 1 / 1;
+
     padding: 0;
-    border-radius: 10px;
+
+    border:
+        1px solid
+        rgba(79, 247, 234, 0.24);
+
+    border-radius:
+        14px;
+
+    color:
+        var(--text-main) !important;
 
     background:
         linear-gradient(
             145deg,
-            rgba(24, 44, 71, 0.95),
+            rgba(24, 44, 71, 0.98),
             rgba(10, 22, 39, 0.98)
-        );
+        ) !important;
 
-    border: 1px solid rgba(79, 247, 234, 0.18);
-    color: var(--text-main);
+    font-size:
+        clamp(0.76rem, 1.5vw, 1rem);
+
+    font-weight:
+        700;
 
     box-shadow:
-        inset 0 0 8px rgba(79, 247, 234, 0.05),
-        0 0 8px rgba(0, 0, 0, 0.22);
+        inset 0 1px 0
+            rgba(255, 255, 255, 0.07),
+        inset 0 0 10px
+            rgba(79, 247, 234, 0.04),
+        0 4px 9px
+            rgba(0, 0, 0, 0.24);
 
     transition:
-        transform 0.15s ease,
-        box-shadow 0.15s ease,
-        border-color 0.15s ease;
+        transform 0.16s ease,
+        border-color 0.16s ease,
+        box-shadow 0.16s ease,
+        background 0.16s ease;
 }
 
-.celda-demostracion:hover {
-    transform: translateY(-2px) scale(1.03);
-    border-color: rgba(79, 247, 234, 0.65);
+.celda-demostracion:hover:not(.celda-medida) {
+    transform:
+        translateY(-3px)
+        scale(1.025);
+
+    border-color:
+        rgba(79, 247, 234, 0.75);
+
     box-shadow:
-        0 0 10px rgba(79, 247, 234, 0.30),
-        0 0 22px rgba(79, 247, 234, 0.16),
-        inset 0 0 12px rgba(79, 247, 234, 0.08);
+        0 0 12px
+            rgba(79, 247, 234, 0.38),
+        0 0 24px
+            rgba(79, 247, 234, 0.14),
+        inset 0 0 14px
+            rgba(79, 247, 234, 0.08);
 }
 
-/* ==========================================
+.celda-oculta {
+    color:
+        var(--cyan-soft) !important;
+}
+
+
+/* ==========================================================
+   CELDA SELECCIONADA
+   ========================================================== */
+
+.celda-seleccionada {
+    color:
+        var(--green-neon) !important;
+
+    border:
+        3px solid
+        var(--green-neon) !important;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(22, 73, 63, 0.98),
+            rgba(9, 35, 36, 0.98)
+        ) !important;
+
+    box-shadow:
+        0 0 14px
+            rgba(83, 246, 176, 0.88),
+        0 0 30px
+            rgba(83, 246, 176, 0.38),
+        inset 0 0 16px
+            rgba(83, 246, 176, 0.14)
+            !important;
+
+    animation:
+        pulso-seleccion 1.3s
+        ease-in-out infinite alternate;
+}
+
+@keyframes pulso-seleccion {
+    from {
+        filter:
+            brightness(0.96);
+    }
+
+    to {
+        filter:
+            brightness(1.14);
+    }
+}
+
+
+/* ==========================================================
+   CELDAS MEDIDAS
+   ========================================================== */
+
+.celda-medida,
+.celda-medida.q-btn--disable,
+.celda-medida.disabled {
+    opacity:
+        1 !important;
+
+    cursor:
+        default !important;
+
+    transform:
+        none !important;
+}
+
+.celda-segura {
+    color:
+        var(--green-neon) !important;
+
+    border:
+        2px solid
+        rgba(83, 246, 176, 0.78) !important;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(20, 78, 61, 0.96),
+            rgba(7, 38, 34, 0.98)
+        ) !important;
+
+    box-shadow:
+        var(--shadow-green),
+        inset 0 0 18px
+            rgba(83, 246, 176, 0.14)
+            !important;
+
+    font-size:
+        1.45rem;
+}
+
+.celda-mina {
+    color:
+        #ffffff !important;
+
+    border:
+        2px solid
+        rgba(255, 93, 125, 0.82) !important;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(98, 24, 49, 0.98),
+            rgba(48, 8, 29, 0.98)
+        ) !important;
+
+    box-shadow:
+        var(--shadow-red),
+        inset 0 0 18px
+            rgba(255, 93, 125, 0.18)
+            !important;
+
+    font-size:
+        1.4rem;
+}
+
+
+/* ==========================================================
+   RESUMEN DEL TABLERO
+   ========================================================== */
+
+.resumen-tablero {
+    width: 100%;
+    margin-top: 18px;
+
+    display: grid !important;
+    grid-template-columns:
+        repeat(4, minmax(0, 1fr));
+
+    gap: 10px;
+}
+
+.dato-tablero {
+    min-width: 0;
+
+    padding: 12px 10px;
+
+    align-items: center;
+    gap: 2px !important;
+
+    background:
+        rgba(9, 23, 40, 0.78);
+
+    border:
+        1px solid
+        rgba(79, 247, 234, 0.13);
+
+    border-radius:
+        12px;
+
+    text-align:
+        center;
+}
+
+.etiqueta-dato-tablero {
+    color:
+        var(--text-muted);
+
+    font-size:
+        0.65rem;
+
+    line-height:
+        1.35;
+
+    text-align:
+        center;
+}
+
+.valor-dato-tablero {
+    color:
+        var(--cyan-soft);
+
+    font-size:
+        0.94rem;
+
+    font-weight:
+        700;
+
+    text-shadow:
+        0 0 8px
+        rgba(79, 247, 234, 0.32);
+}
+
+
+/* ==========================================================
    PANEL CUÁNTICO
-   ========================================== */
+   ========================================================== */
 
 .panel-cuantico {
     padding: 20px;
+
     display: flex;
     flex-direction: column;
+
     gap: 16px;
 }
 
@@ -285,21 +687,41 @@ body {
 .icono-panel-cuantico,
 .icono-bloque,
 .icono-estado {
-    color: var(--cyan-soft);
-    text-shadow: 0 0 12px rgba(79, 247, 234, 0.55);
+    color:
+        var(--cyan-soft);
+
+    text-shadow:
+        0 0 12px
+        rgba(79, 247, 234, 0.55);
 }
 
 .icono-panel-cuantico {
-    font-size: 2rem;
+    font-size:
+        2rem;
 }
+
+
+/* ==========================================================
+   BLOQUES DEL PANEL
+   ========================================================== */
 
 .bloque-panel {
     width: 100%;
     padding: 16px;
-    background: var(--bg-panel-2);
-    border: 1px solid rgba(79, 247, 234, 0.14);
-    border-radius: 16px;
-    box-shadow: 0 0 18px rgba(79, 247, 234, 0.03);
+
+    background:
+        var(--bg-panel-2);
+
+    border:
+        1px solid
+        rgba(79, 247, 234, 0.14);
+
+    border-radius:
+        16px;
+
+    box-shadow:
+        0 0 18px
+        rgba(79, 247, 234, 0.03);
 }
 
 .titulo-bloque {
@@ -308,17 +730,31 @@ body {
 }
 
 .nombre-bloque {
-    font-weight: 700;
-    color: var(--text-main);
+    color:
+        var(--text-main);
+
+    font-weight:
+        700;
 }
 
 .texto-bloque {
     margin-top: 6px;
     margin-bottom: 12px;
-    color: var(--text-soft);
-    font-size: 0.75rem;
-    line-height: 1.45;
+
+    color:
+        var(--text-soft);
+
+    font-size:
+        0.75rem;
+
+    line-height:
+        1.5;
 }
+
+
+/* ==========================================================
+   BOTONES DE COMPUERTAS
+   ========================================================== */
 
 .lista-compuertas {
     width: 100%;
@@ -327,80 +763,241 @@ body {
 
 .boton-compuerta {
     width: 100%;
+
     justify-content: flex-start;
-    color: var(--text-main) !important;
+
+    padding:
+        8px 14px;
+
+    color:
+        var(--text-main) !important;
+
     background:
         linear-gradient(
             90deg,
             rgba(79, 247, 234, 0.10),
             rgba(181, 108, 255, 0.10)
         ) !important;
-    border: 1px solid rgba(79, 247, 234, 0.24);
-    border-radius: 999px;
-    padding: 8px 14px;
-    letter-spacing: 0.03em;
+
+    border:
+        1px solid
+        rgba(79, 247, 234, 0.24);
+
+    border-radius:
+        999px;
+
+    letter-spacing:
+        0.03em;
+
+    transition:
+        transform 0.16s ease,
+        border-color 0.16s ease,
+        box-shadow 0.16s ease,
+        background 0.16s ease;
 }
 
-.boton-compuerta:hover {
-    border-color: rgba(79, 247, 234, 0.55);
-    box-shadow: 0 0 12px rgba(79, 247, 234, 0.16);
+.boton-compuerta:hover:not(
+    .boton-compuerta-bloqueada
+) {
+    transform:
+        translateX(3px);
+
+    border-color:
+        rgba(79, 247, 234, 0.62);
+
+    box-shadow:
+        0 0 13px
+        rgba(79, 247, 234, 0.19);
 }
+
+.boton-compuerta-activa {
+    color:
+        #041411 !important;
+
+    background:
+        linear-gradient(
+            90deg,
+            var(--green-neon),
+            var(--cyan-soft)
+        ) !important;
+
+    border-color:
+        var(--green-neon) !important;
+
+    box-shadow:
+        var(--shadow-green)
+        !important;
+
+    font-weight:
+        800;
+}
+
+.boton-compuerta-bloqueada,
+.boton-compuerta.q-btn--disable {
+    opacity:
+        0.38 !important;
+
+    cursor:
+        not-allowed !important;
+
+    filter:
+        grayscale(0.45);
+
+    box-shadow:
+        none !important;
+}
+
+
+/* ==========================================================
+   PROBABILIDAD
+   ========================================================== */
 
 .fila-probabilidad {
     width: 100%;
+
     justify-content: space-between;
     align-items: center;
+
+    gap: 12px;
 }
 
 .valor-probabilidad {
-    color: var(--text-soft);
-    font-size: 0.8rem;
+    color:
+        var(--text-soft);
+
+    font-size:
+        0.78rem;
 }
 
 .porcentaje-probabilidad {
-    color: var(--green-neon);
-    font-size: 1.05rem;
-    font-weight: 700;
-    text-shadow: 0 0 10px rgba(83, 246, 176, 0.35);
+    color:
+        var(--green-neon);
+
+    font-size:
+        1.05rem;
+
+    font-weight:
+        700;
+
+    text-shadow:
+        0 0 10px
+        rgba(83, 246, 176, 0.35);
 }
 
 .barra-probabilidad {
-    margin-top: 8px;
-    color: var(--cyan);
+    margin-top: 9px;
+
+    color:
+        var(--cyan);
 }
 
+.barra-probabilidad
+.q-linear-progress__track {
+    background:
+        rgba(79, 247, 234, 0.12)
+        !important;
+}
+
+.barra-probabilidad
+.q-linear-progress__model {
+    background:
+        linear-gradient(
+            90deg,
+            var(--green-neon),
+            var(--cyan),
+            var(--purple-soft)
+        ) !important;
+}
+
+
+/* ==========================================================
+   RESUMEN DE OPERACIÓN
+   ========================================================== */
+
 .circuito-provisional {
-    min-height: 115px;
+    min-height: 125px;
+
+    padding: 15px;
+
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    border: 1px dashed rgba(79, 247, 234, 0.20);
-    border-radius: 12px;
+
+    gap: 5px;
+
+    border:
+        1px dashed
+        rgba(79, 247, 234, 0.24);
+
+    border-radius:
+        12px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(79, 247, 234, 0.025),
+            rgba(181, 108, 255, 0.035)
+        );
+
+    text-align:
+        center;
 }
 
 .icono-circuito {
-    color: var(--purple-soft);
-    font-size: 2.1rem;
-    text-shadow: 0 0 10px rgba(181, 108, 255, 0.5);
+    color:
+        var(--purple-soft);
+
+    font-size:
+        2.1rem;
+
+    text-shadow:
+        0 0 10px
+        rgba(181, 108, 255, 0.5);
 }
 
 .texto-circuito {
-    margin-top: 6px;
-    font-size: 0.8rem;
+    margin-top:
+        5px;
+
+    color:
+        var(--text-main);
+
+    font-size:
+        0.8rem;
+
+    font-weight:
+        700;
 }
 
 .detalle-circuito {
-    color: var(--text-soft);
-    font-size: 0.68rem;
+    max-width:
+        240px;
+
+    color:
+        var(--text-soft);
+
+    font-size:
+        0.68rem;
+
+    line-height:
+        1.5;
+
+    text-align:
+        center;
 }
+
+
+/* ==========================================================
+   BOTÓN EJECUTAR
+   ========================================================== */
 
 .boton-ejecutar {
     width: 100%;
     min-height: 52px;
-    color: #081018 !important;
-    font-weight: 800;
-    letter-spacing: 0.08em;
+
+    color:
+        #081018 !important;
 
     background:
         linear-gradient(
@@ -410,30 +1007,86 @@ body {
             var(--purple-soft) 100%
         ) !important;
 
-    border: none;
-    border-radius: 999px;
+    border:
+        none;
+
+    border-radius:
+        999px;
+
+    font-weight:
+        800;
+
+    letter-spacing:
+        0.08em;
+
     box-shadow:
-        0 0 12px rgba(79, 247, 234, 0.35),
-        0 0 24px rgba(181, 108, 255, 0.20);
+        0 0 12px
+            rgba(79, 247, 234, 0.35),
+        0 0 24px
+            rgba(181, 108, 255, 0.20);
+
+    transition:
+        transform 0.18s ease,
+        box-shadow 0.18s ease,
+        opacity 0.18s ease;
 }
 
-/* ==========================================
+.boton-ejecutar:hover:not(
+    .q-btn--disable
+) {
+    transform:
+        translateY(-2px);
+
+    box-shadow:
+        0 0 18px
+            rgba(79, 247, 234, 0.55),
+        0 0 32px
+            rgba(181, 108, 255, 0.32);
+}
+
+.boton-ejecutar.q-btn--disable,
+.boton-ejecutar.disabled {
+    opacity:
+        0.34 !important;
+
+    cursor:
+        not-allowed !important;
+
+    filter:
+        grayscale(0.5);
+
+    box-shadow:
+        none !important;
+}
+
+
+/* ==========================================================
    BARRA DE ESTADO
-   ========================================== */
+   ========================================================== */
 
 .barra-estado {
     width: 100%;
     min-height: 70px;
-    padding: 10px 24px;
+
+    padding:
+        10px 24px;
 
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: clamp(25px, 6vw, 90px);
 
-    background: rgba(1, 5, 14, 0.78);
-    border-top: 1px solid rgba(79, 247, 234, 0.12);
-    backdrop-filter: blur(8px);
+    gap:
+        clamp(25px, 6vw, 90px);
+
+    background:
+        rgba(1, 5, 14, 0.82);
+
+    border-top:
+        1px solid
+        rgba(79, 247, 234, 0.12);
+
+    backdrop-filter:
+        blur(8px);
 }
 
 .indicador-estado {
@@ -446,73 +1099,257 @@ body {
 }
 
 .etiqueta-estado {
-    color: var(--text-soft);
-    font-size: 0.68rem;
+    color:
+        var(--text-soft);
+
+    font-size:
+        0.68rem;
 }
 
 .valor-estado {
-    color: var(--text-main);
-    font-size: 0.92rem;
-    font-weight: 700;
+    color:
+        var(--text-main);
+
+    font-size:
+        0.92rem;
+
+    font-weight:
+        700;
 }
 
-/* ==========================================
-   RESPONSIVE
-   ========================================== */
+
+/* ==========================================================
+   RESPONSIVE: TABLETS
+   ========================================================== */
 
 @media (max-width: 1100px) {
     .contenido-juego {
-        grid-template-columns: 1fr;
+        grid-template-columns:
+            1fr;
+    }
+
+    .panel-cuantico {
+        display:
+            grid;
+
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+    .cabecera-panel-cuantico,
+    .boton-ejecutar {
+        grid-column:
+            1 / -1;
     }
 }
 
+
+/* ==========================================================
+   RESPONSIVE: PANTALLAS MEDIANAS
+   ========================================================== */
+
 @media (max-width: 800px) {
     .encabezado-juego {
-        grid-template-columns: 100px 1fr 70px;
-        padding: 12px;
+        grid-template-columns:
+            95px 1fr 55px;
+
+        padding:
+            12px;
+    }
+
+    .fila-brand {
+        gap:
+            7px;
     }
 
     .titulo-brand {
-        font-size: 1.15rem;
+        font-size:
+            1.05rem;
+
+        letter-spacing:
+            0.07em;
     }
 
     .subtitulo-brand {
-        font-size: 0.65rem;
-        max-width: 95%;
+        display:
+            none;
     }
 
     .contenido-juego {
-        padding: 14px;
+        padding:
+            14px;
     }
 
     .panel-tablero,
     .panel-cuantico {
-        padding: 14px;
+        padding:
+            14px;
     }
 
     .contenedor-tablero {
-        min-height: 390px;
-        padding: 12px;
+        min-height:
+            390px;
+
+        padding:
+            15px;
     }
 
     .tablero-demostracion {
-        grid-template-columns: repeat(8, 38px);
-        gap: 5px;
+        width:
+            min(100%, 350px);
+
+        gap:
+            8px;
     }
 
-    .celda-demostracion {
-        width: 38px;
-        min-width: 38px;
-        height: 38px;
+    .resumen-tablero {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+    .panel-cuantico {
+        display:
+            flex;
     }
 
     .barra-estado {
-        justify-content: space-around;
-        gap: 10px;
-        padding: 10px;
+        justify-content:
+            space-around;
+
+        gap:
+            10px;
+
+        padding:
+            10px;
     }
 
     .etiqueta-estado {
-        display: none;
+        display:
+            none;
+    }
+}
+
+
+/* ==========================================================
+   RESPONSIVE: CELULARES
+   ========================================================== */
+
+@media (max-width: 520px) {
+    .encabezado-juego {
+        min-height:
+            74px;
+
+        grid-template-columns:
+            72px 1fr 45px;
+    }
+
+    .boton-pastilla-secundario {
+        padding:
+            5px 8px;
+    }
+
+    .titulo-brand {
+        font-size:
+            0.76rem;
+
+        letter-spacing:
+            0.04em;
+    }
+
+    .contenido-juego {
+        padding:
+            9px;
+
+        gap:
+            12px;
+    }
+
+    .panel-tablero,
+    .panel-cuantico {
+        padding:
+            12px;
+
+        border-radius:
+            16px;
+    }
+
+    .cabecera-panel {
+        flex-direction:
+            column;
+
+        align-items:
+            flex-start;
+
+        gap:
+            10px;
+    }
+
+    .contenedor-tablero {
+        min-height:
+            310px;
+
+        padding:
+            12px;
+    }
+
+    .tablero-demostracion {
+        width:
+            min(100%, 300px);
+
+        gap:
+            7px;
+    }
+
+    .celda-demostracion {
+        border-radius:
+            10px;
+
+        font-size:
+            0.72rem;
+    }
+
+    .resumen-tablero {
+        gap:
+            7px;
+    }
+
+    .dato-tablero {
+        padding:
+            9px 6px;
+    }
+
+    .etiqueta-dato-tablero {
+        font-size:
+            0.58rem;
+    }
+
+    .valor-dato-tablero {
+        font-size:
+            0.8rem;
+    }
+
+    .bloque-panel {
+        padding:
+            13px;
+    }
+}
+
+
+/* ==========================================================
+   ACCESIBILIDAD
+   ========================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration:
+            0.01ms !important;
+
+        animation-iteration-count:
+            1 !important;
+
+        transition-duration:
+            0.01ms !important;
     }
 }

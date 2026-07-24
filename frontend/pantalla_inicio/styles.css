@@ -1,172 +1,190 @@
 @import url(
-  "https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&family=Press+Start+2P&display=swap"
+  "https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
 );
 
 
 /* ==========================================================
-   VARIABLES GENERALES
+   VARIABLES
    ========================================================== */
 
 :root {
   --fondo-principal: #02040a;
-  --fondo-superior: #061726;
-  --fondo-modal: #071226;
+  --fondo-secundario: #061726;
+  --fondo-modal: rgba(5, 13, 28, 0.97);
 
   --cyan: #5ce1e6;
-  --cyan-claro: #9cffff;
+  --cyan-claro: #8ffcff;
   --verde: #3cfca3;
   --morado: #b26dff;
+  --morado-claro: #d29aff;
   --amarillo: #ffe76b;
 
-  --texto-principal: #e0f7ff;
+  --texto-principal: #e8fbff;
   --texto-secundario: #b9ddff;
-  --texto-modal: #c9efff;
+  --texto-suave: #89a9bf;
 
   --borde-cyan: rgba(92, 225, 230, 0.55);
   --borde-morado: rgba(178, 109, 255, 0.55);
 
   --sombra-cyan:
     0 0 12px rgba(92, 225, 230, 0.75),
-    0 0 26px rgba(60, 252, 163, 0.35);
+    0 0 28px rgba(92, 225, 230, 0.30);
+
+  --sombra-verde:
+    0 0 12px rgba(60, 252, 163, 0.78),
+    0 0 30px rgba(60, 252, 163, 0.35);
 
   --sombra-morada:
-    0 0 14px rgba(178, 109, 255, 0.65),
-    0 0 32px rgba(178, 109, 255, 0.28);
+    0 0 12px rgba(178, 109, 255, 0.78),
+    0 0 30px rgba(178, 109, 255, 0.35);
 }
 
 
 /* ==========================================================
-   REINICIO GENERAL
+   CONFIGURACIÓN GENERAL
    ========================================================== */
 
 *,
 *::before,
 *::after {
   box-sizing: border-box;
-  margin: 0;
-  padding: 0;
 }
 
 html {
+  min-width: 320px;
   min-height: 100%;
   background: var(--fondo-principal);
 }
 
 body {
+  margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  min-height: 100dvh;
 
   overflow-x: hidden;
-  overflow-y: hidden;
 
-  font-family: "Orbitron", system-ui, sans-serif;
   color: var(--texto-principal);
+
+  font-family:
+    "Orbitron",
+    system-ui,
+    sans-serif;
 
   background:
     radial-gradient(
       circle at 50% 0%,
-      var(--fondo-superior) 0%,
-      var(--fondo-principal) 43%,
-      #000000 100%
+      rgba(9, 74, 112, 0.50) 0%,
+      rgba(3, 19, 35, 0.45) 30%,
+      var(--fondo-principal) 72%
     );
+}
+
+body.modal-abierto {
+  overflow: hidden;
 }
 
 button {
   font: inherit;
 }
 
-button,
-audio {
-  -webkit-tap-highlight-color: transparent;
+button:focus-visible {
+  outline: 3px solid var(--amarillo);
+  outline-offset: 4px;
 }
 
-audio {
-  display: none;
+.app-container {
+  position: relative;
+
+  width: 100%;
+  min-height: 100vh;
 }
 
 
 /* ==========================================================
-   CONTENEDOR GENERAL
+   PANTALLA PRINCIPAL
    ========================================================== */
-
-.app-container {
-  position: relative;
-  width: 100%;
-  min-height: 100vh;
-  min-height: 100dvh;
-}
 
 .screen {
   position: relative;
+
   width: 100%;
   min-height: 100vh;
-  min-height: 100dvh;
 
   display: none;
+
   overflow: hidden;
 }
 
-.active-screen {
+.screen.active-screen {
   display: block;
 }
 
 
 /* ==========================================================
-   FONDO CON REJILLA
+   FONDO DE REJILLA
    ========================================================== */
 
 .grid-background {
   position: absolute;
   inset: 0;
+
   pointer-events: none;
 
   background-image:
     linear-gradient(
       90deg,
-      rgba(92, 225, 230, 0.10) 1px,
+      rgba(92, 225, 230, 0.09) 1px,
       transparent 1px
     ),
     linear-gradient(
       180deg,
-      rgba(178, 109, 255, 0.10) 1px,
+      rgba(178, 109, 255, 0.09) 1px,
       transparent 1px
     );
 
-  background-size: 40px 40px;
-  background-position: center;
+  background-size: 42px 42px;
 
-  opacity: 0.68;
+  opacity: 0.72;
 
-  filter:
-    drop-shadow(
-      0 0 10px rgba(0, 255, 170, 0.32)
+  mask-image:
+    linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 1),
+      rgba(0, 0, 0, 0.70)
     );
+}
 
-  animation: mover-rejilla 24s linear infinite;
+.grid-background::before,
+.grid-background::after {
+  content: "";
+
+  position: absolute;
+
+  border-radius: 50%;
+
+  filter: blur(35px);
+
+  opacity: 0.30;
+}
+
+.grid-background::before {
+  top: 12%;
+  left: 8%;
+
+  width: 280px;
+  height: 280px;
+
+  background: var(--morado);
 }
 
 .grid-background::after {
-  content: "";
-  position: absolute;
-  inset: 0;
+  right: 8%;
+  bottom: 10%;
 
-  background:
-    radial-gradient(
-      circle at center,
-      rgba(92, 225, 230, 0.05),
-      transparent 55%
-    );
-}
+  width: 260px;
+  height: 260px;
 
-@keyframes mover-rejilla {
-  from {
-    background-position: 0 0;
-  }
-
-  to {
-    background-position: 40px 40px;
-  }
+  background: var(--verde);
 }
 
 
@@ -178,11 +196,14 @@ audio {
   position: relative;
   z-index: 1;
 
-  width: 100%;
+  width: min(1180px, 100%);
   min-height: 100vh;
-  min-height: 100dvh;
 
-  padding: clamp(2.5rem, 7vh, 5rem) 2rem 2rem;
+  margin: 0 auto;
+  padding:
+    clamp(34px, 7vh, 72px)
+    clamp(20px, 5vw, 64px)
+    clamp(24px, 5vh, 48px);
 
   display: flex;
   flex-direction: column;
@@ -191,12 +212,11 @@ audio {
 
 
 /* ==========================================================
-   ENCABEZADO Y TÍTULO
+   TÍTULO
    ========================================================== */
 
 .menu-header {
   width: 100%;
-  margin-bottom: clamp(1.5rem, 5vh, 3rem);
 
   display: flex;
   flex-direction: column;
@@ -206,22 +226,28 @@ audio {
 }
 
 .game-title {
-  max-width: 1500px;
+  margin: 0;
 
-  font-family: "Press Start 2P", system-ui, sans-serif;
-  font-size: clamp(2.4rem, 5.8vw, 5rem);
+  max-width: 1100px;
+
+  font-family:
+    "Press Start 2P",
+    monospace;
+
+  font-size:
+    clamp(2.1rem, 5.4vw, 4.8rem);
+
   line-height: 1.28;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
+
+  color: var(--morado);
 
   text-transform: uppercase;
-  color: var(--morado);
 
   text-shadow:
     0 0 8px rgba(178, 109, 255, 0.95),
-    0 0 22px rgba(178, 109, 255, 0.62),
-    0 0 38px rgba(92, 225, 230, 0.45);
-
-  animation: brillo-titulo 3.2s ease-in-out infinite alternate;
+    0 0 22px rgba(178, 109, 255, 0.72),
+    0 0 44px rgba(92, 225, 230, 0.40);
 }
 
 .title-highlight {
@@ -229,82 +255,102 @@ audio {
 
   text-shadow:
     0 0 8px rgba(60, 252, 163, 0.95),
-    0 0 22px rgba(60, 252, 163, 0.58),
-    0 0 42px rgba(92, 225, 230, 0.46);
+    0 0 22px rgba(60, 252, 163, 0.72),
+    0 0 44px rgba(92, 225, 230, 0.42);
 }
 
 .game-subtitle {
-  width: min(680px, 90%);
-  margin: 1.5rem auto 0;
+  max-width: 720px;
+
+  margin:
+    clamp(18px, 3vh, 28px)
+    auto
+    0;
 
   color: var(--texto-secundario);
 
-  font-size: 0.95rem;
-  line-height: 1.6;
+  font-size:
+    clamp(0.78rem, 1.5vw, 1rem);
+
+  line-height: 1.75;
+  letter-spacing: 0.035em;
+
   text-align: center;
-}
-
-@keyframes brillo-titulo {
-  from {
-    filter: brightness(0.92);
-  }
-
-  to {
-    filter: brightness(1.12);
-  }
 }
 
 
 /* ==========================================================
-   ZONA CENTRAL: PATITOS Y START
+   ZONA CENTRAL
    ========================================================== */
 
 .menu-main {
   width: 100%;
   flex: 1;
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  padding:
+    clamp(40px, 8vh, 90px)
+    0
+    clamp(34px, 6vh, 70px);
 
-  transform: translateY(-60px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .ducks-container {
+  width: 100%;
+
   display: flex;
-  align-items: center;
   justify-content: center;
-  gap: clamp(1rem, 3vw, 1.75rem);
+  align-items: center;
+
+  gap:
+    clamp(18px, 4vw, 50px);
 }
 
 .duck {
-  font-size: clamp(2.2rem, 4vw, 3.2rem);
+  display: inline-block;
+
+  font-size:
+    clamp(2.2rem, 5vw, 4rem);
+
   user-select: none;
 }
 
 .neon-duck {
-  color: var(--amarillo);
-
-  text-shadow:
-    0 0 10px rgba(255, 231, 107, 0.95),
-    0 0 24px rgba(255, 255, 255, 0.62),
-    0 0 40px rgba(255, 231, 107, 0.72);
+  filter:
+    drop-shadow(
+      0 0 8px
+      rgba(255, 231, 107, 0.95)
+    )
+    drop-shadow(
+      0 0 18px
+      rgba(255, 231, 107, 0.50)
+    );
 
   animation:
-    pato-flotante 3.5s ease-in-out infinite alternate;
+    pato-flotante
+    2.8s
+    ease-in-out
+    infinite
+    alternate;
 }
 
-.duck-right {
+.neon-duck:last-child {
   animation-delay: 0.45s;
 }
 
 @keyframes pato-flotante {
   from {
-    transform: translateY(0) rotate(-2deg);
+    transform:
+      translateY(4px)
+      rotate(-4deg);
   }
 
   to {
-    transform: translateY(-10px) rotate(2deg);
+    transform:
+      translateY(-12px)
+      rotate(4deg);
   }
 }
 
@@ -314,101 +360,58 @@ audio {
    ========================================================== */
 
 .btn {
-  position: relative;
-  overflow: hidden;
-
   border: none;
-  border-radius: 999px;
 
   cursor: pointer;
 
-  font-weight: 600;
+  border-radius: 999px;
+
+  font-weight: 700;
+
   letter-spacing: 0.08em;
   text-transform: uppercase;
 
   transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease,
-    color 0.2s ease,
-    border-color 0.2s ease,
-    background-color 0.2s ease,
-    opacity 0.2s ease;
+    transform 0.18s ease,
+    color 0.18s ease,
+    border-color 0.18s ease,
+    background 0.18s ease,
+    box-shadow 0.18s ease,
+    opacity 0.18s ease;
 }
-
-.btn::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-
-  background:
-    linear-gradient(
-      110deg,
-      transparent 20%,
-      rgba(255, 255, 255, 0.26) 48%,
-      transparent 76%
-    );
-
-  transform: translateX(-130%);
-  transition: transform 0.55s ease;
-}
-
-.btn:hover::before {
-  transform: translateX(130%);
-}
-
-.btn:focus-visible {
-  outline: 3px solid rgba(255, 255, 255, 0.92);
-  outline-offset: 4px;
-}
-
-
-/* ==========================================================
-   BOTONES NEÓN
-   ========================================================== */
 
 .btn-neon {
-  padding: 0.9rem 2.6rem;
+  padding: 0.9rem 2.25rem;
 
   color: #02040a;
 
   background:
-    radial-gradient(
-      circle at 20% 0%,
-      var(--verde) 0%,
-      var(--cyan) 42%,
-      var(--morado) 100%
+    linear-gradient(
+      100deg,
+      var(--verde),
+      var(--cyan),
+      var(--morado-claro)
     );
 
   box-shadow:
-    0 0 12px rgba(92, 225, 230, 0.8),
-    0 0 26px rgba(60, 252, 163, 0.55),
-    0 0 40px rgba(178, 109, 255, 0.58);
+    var(--sombra-cyan),
+    var(--sombra-morada);
 }
 
-.btn-neon:hover,
-.btn-neon:focus-visible {
-  color: var(--verde);
-
-  border-color: var(--verde);
-
-  background:
-    rgba(2, 4, 10, 0.88);
-
+.btn-neon:hover:not(:disabled) {
   transform:
-    translateY(-2px)
-    scale(1.05);
+    translateY(-3px)
+    scale(1.04);
 
-  text-shadow:
-    0 0 10px rgba(60, 252, 163, 1),
-    0 0 24px rgba(60, 252, 163, 0.85);
+  color: #03100e;
 
   box-shadow:
-    0 0 16px rgba(60, 252, 163, 0.82),
-    0 0 32px rgba(92, 225, 230, 0.52),
-    inset 0 0 18px rgba(60, 252, 163, 0.10);
+    0 0 16px rgba(60, 252, 163, 0.88),
+    0 0 34px rgba(92, 225, 230, 0.55),
+    0 0 48px rgba(178, 109, 255, 0.35);
 }
 
-.btn-neon:active {
+.btn-neon:active:not(:disabled) {
   transform:
     translateY(1px)
     scale(0.98);
@@ -420,90 +423,68 @@ audio {
    ========================================================== */
 
 .btn-start {
-  min-width: 320px;
-  padding: 1.6rem 5.5rem;
+  min-width:
+    clamp(245px, 32vw, 390px);
 
-  border: 2px solid var(--cyan);
+  padding:
+    clamp(1.25rem, 2.6vw, 1.7rem)
+    clamp(2.5rem, 6vw, 5.4rem);
+
+  border:
+    2px solid
+    var(--cyan);
+
+  color:
+    var(--cyan-claro);
 
   background:
-    rgba(2, 4, 10, 0.72);
+    rgba(2, 7, 15, 0.64);
 
-  color: var(--cyan);
+  font-family:
+    "Press Start 2P",
+    monospace;
 
-  font-family: "Press Start 2P", system-ui, sans-serif;
-  font-size: 1.45rem;
+  font-size:
+    clamp(1rem, 2.1vw, 1.55rem);
 
   text-shadow:
     0 0 8px rgba(92, 225, 230, 1),
-    0 0 18px rgba(60, 252, 163, 0.86),
-    0 0 34px rgba(178, 109, 255, 0.72);
+    0 0 18px rgba(60, 252, 163, 0.82),
+    0 0 30px rgba(178, 109, 255, 0.65);
 
   box-shadow:
-    0 0 12px rgba(92, 225, 230, 0.92),
-    0 0 28px rgba(60, 252, 163, 0.48),
-    inset 0 0 18px rgba(92, 225, 230, 0.22);
+    0 0 14px rgba(92, 225, 230, 0.82),
+    0 0 32px rgba(60, 252, 163, 0.38),
+    inset 0 0 22px rgba(92, 225, 230, 0.17);
 }
 
-.btn-start:hover,
-.btn-start:focus-visible {
+.btn-start:hover:not(:disabled) {
   color: var(--verde);
 
   border-color: var(--verde);
 
   background:
-    rgba(2, 10, 14, 0.82);
+    rgba(5, 25, 25, 0.74);
 
   box-shadow:
-    0 0 16px rgba(60, 252, 163, 0.9),
-    0 0 34px rgba(92, 225, 230, 0.58),
-    inset 0 0 22px rgba(60, 252, 163, 0.16);
+    0 0 18px rgba(60, 252, 163, 0.92),
+    0 0 38px rgba(92, 225, 230, 0.50),
+    inset 0 0 25px rgba(60, 252, 163, 0.15);
 }
 
-
-/* Estado que aparece durante los 500 ms del sonido */
 .btn-start:disabled {
   cursor: wait;
-  pointer-events: none;
 
-  color: var(--cyan-claro);
-  border-color: var(--cyan-claro);
+  opacity: 0.55;
 
-  opacity: 0.78;
+  color: var(--texto-suave);
 
-  animation:
-    boton-cargando 0.45s ease-in-out infinite alternate;
-}
+  border-color:
+    rgba(137, 169, 191, 0.55);
 
-@keyframes boton-cargando {
-  from {
-    box-shadow:
-      0 0 10px rgba(92, 225, 230, 0.68),
-      inset 0 0 14px rgba(92, 225, 230, 0.18);
-  }
-
-  to {
-    box-shadow:
-      0 0 24px rgba(92, 225, 230, 1),
-      0 0 42px rgba(60, 252, 163, 0.48),
-      inset 0 0 24px rgba(92, 225, 230, 0.28);
-  }
-}
-
-
-/* ==========================================================
-   BOTONES SECUNDARIOS
-   ========================================================== */
-
-.btn-secondary {
-  min-width: 230px;
-  margin: 0 0.5rem;
-}
-
-.btn-small {
-  min-width: 110px;
-  padding: 0.55rem 1.4rem;
-
-  font-size: 0.75rem;
+  box-shadow:
+    0 0 10px
+    rgba(137, 169, 191, 0.25);
 }
 
 
@@ -515,187 +496,170 @@ audio {
   width: min(760px, 100%);
 
   display: flex;
-  align-items: center;
   justify-content: space-between;
+  align-items: center;
 
-  gap: 1.5rem;
+  gap: 20px;
+}
+
+.btn-secondary {
+  min-width: 225px;
 }
 
 
 /* ==========================================================
-   FONDO DE LOS MODALES
+   MODALES
    ========================================================== */
 
 .modal-overlay {
   position: fixed;
   inset: 0;
-  z-index: 999;
+  z-index: 1000;
 
   display: none;
-  align-items: center;
   justify-content: center;
+  align-items: center;
 
-  padding: 1rem;
-
-  background:
-    rgba(0, 0, 0, 0.68);
-
-  backdrop-filter:
-    blur(7px);
-
-  animation:
-    mostrar-overlay 0.2s ease-out;
-}
-
-@keyframes mostrar-overlay {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
-}
-
-
-/* ==========================================================
-   VENTANA DE MODAL
-   ========================================================== */
-
-.modal {
-  width: min(540px, 92vw);
-  max-height: min(720px, 90vh);
+  padding: 24px;
 
   overflow-y: auto;
-  overflow-x: hidden;
 
-  border:
-    1px solid var(--borde-cyan);
+  background:
+    rgba(0, 0, 0, 0.72);
 
-  border-radius: 1rem;
+  backdrop-filter:
+    blur(8px);
+}
+
+.modal {
+  width: min(620px, 100%);
+
+  max-height:
+    calc(100vh - 48px);
+
+  display: flex;
+  flex-direction: column;
+
+  overflow: hidden;
+
+  color: var(--texto-principal);
 
   background:
     radial-gradient(
-      circle at 50% 0%,
-      #0d2140 0%,
-      var(--fondo-modal) 40%,
-      #02040a 100%
+      circle at top,
+      rgba(15, 46, 74, 0.98),
+      var(--fondo-modal) 55%
     );
 
+  border:
+    1px solid
+    var(--borde-cyan);
+
+  border-radius:
+    20px;
+
   box-shadow:
-    var(--sombra-cyan),
-    var(--sombra-morada);
+    0 0 18px rgba(92, 225, 230, 0.65),
+    0 0 42px rgba(178, 109, 255, 0.42);
 
   animation:
-    mostrar-modal 0.25s ease-out;
+    aparecer-modal
+    0.22s
+    ease-out;
 }
 
-@keyframes mostrar-modal {
+@keyframes aparecer-modal {
   from {
-    transform:
-      translateY(-24px)
-      scale(0.97);
-
     opacity: 0;
+
+    transform:
+      translateY(-20px)
+      scale(0.97);
   }
 
   to {
+    opacity: 1;
+
     transform:
       translateY(0)
       scale(1);
-
-    opacity: 1;
   }
 }
 
 
 /* ==========================================================
-   ENCABEZADO Y PIE DEL MODAL
+   CABECERA DEL MODAL
    ========================================================== */
 
-.modal-header,
-.modal-footer {
+.modal-header {
+  padding: 17px 20px;
+
   display: flex;
+  justify-content: space-between;
   align-items: center;
 
-  padding: 1rem 1.1rem;
-}
-
-.modal-header {
-  justify-content: space-between;
+  gap: 16px;
 
   border-bottom:
-    1px solid rgba(92, 225, 230, 0.28);
-
-  background:
-    rgba(92, 225, 230, 0.025);
-}
-
-.modal-footer {
-  justify-content: flex-end;
-
-  border-top:
-    1px solid rgba(92, 225, 230, 0.16);
+    1px solid
+    rgba(92, 225, 230, 0.25);
 }
 
 .modal-header h2 {
-  color: var(--cyan);
+  margin: 0;
 
-  font-size: 1.12rem;
-  letter-spacing: 0.05em;
+  color: var(--cyan-claro);
+
+  font-size:
+    clamp(1rem, 2.5vw, 1.25rem);
 
   text-shadow:
-    0 0 10px rgba(92, 225, 230, 0.62);
+    0 0 10px
+    rgba(92, 225, 230, 0.55);
 }
-
-
-/* ==========================================================
-   BOTÓN X DEL MODAL
-   ========================================================== */
 
 .modal-close {
   width: 38px;
   height: 38px;
 
-  display: grid;
-  place-items: center;
+  flex-shrink: 0;
+
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+
+  padding: 0;
 
   border:
-    1px solid transparent;
+    1px solid
+    rgba(92, 225, 230, 0.35);
 
   border-radius: 50%;
 
-  background:
-    transparent;
-
-  color:
-    var(--texto-secundario);
-
   cursor: pointer;
+
+  color: var(--texto-secundario);
+
+  background:
+    rgba(5, 17, 32, 0.75);
 
   font-size: 1rem;
 
   transition:
-    transform 0.2s ease,
-    color 0.2s ease,
-    border-color 0.2s ease,
-    box-shadow 0.2s ease;
+    transform 0.18s ease,
+    color 0.18s ease,
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
 }
 
-.modal-close:hover,
-.modal-close:focus-visible {
+.modal-close:hover {
+  transform: rotate(8deg) scale(1.08);
+
   color: var(--verde);
 
-  border-color:
-    rgba(60, 252, 163, 0.65);
+  border-color: var(--verde);
 
-  transform:
-    scale(1.08);
-
-  box-shadow:
-    0 0 12px rgba(60, 252, 163, 0.48);
-
-  outline: none;
+  box-shadow: var(--sombra-verde);
 }
 
 
@@ -704,34 +668,70 @@ audio {
    ========================================================== */
 
 .modal-body {
-  padding: 1.1rem;
+  padding: 22px;
 
-  color: var(--texto-modal);
+  overflow-y: auto;
 
-  font-size: 0.9rem;
-  line-height: 1.65;
+  color: var(--texto-secundario);
+
+  font-size:
+    clamp(0.8rem, 1.7vw, 0.95rem);
+
+  line-height: 1.7;
 }
 
 .modal-body p {
-  margin-bottom: 0.85rem;
+  margin:
+    0
+    0
+    14px;
 }
 
 .modal-list {
   margin:
-    0.65rem
+    14px
     0
-    0
-    1.25rem;
+    0;
 
-  padding-left: 0.45rem;
+  padding-left: 24px;
 }
 
 .modal-list li {
-  margin-bottom: 0.5rem;
+  margin-bottom: 11px;
+
+  padding-left: 5px;
 }
 
 .modal-list li::marker {
   color: var(--verde);
+}
+
+.modal-list strong {
+  color: var(--cyan-claro);
+}
+
+
+/* ==========================================================
+   PIE DEL MODAL
+   ========================================================== */
+
+.modal-footer {
+  padding: 15px 20px 20px;
+
+  display: flex;
+  justify-content: flex-end;
+
+  border-top:
+    1px solid
+    rgba(92, 225, 230, 0.13);
+}
+
+.btn-small {
+  min-width: 125px;
+
+  padding: 0.7rem 1.4rem;
+
+  font-size: 0.72rem;
 }
 
 
@@ -740,71 +740,90 @@ audio {
    ========================================================== */
 
 .concept-slider {
-  min-height: 245px;
+  width: 100%;
+  min-height: 260px;
 
-  display: flex;
+  display: grid;
+  grid-template-columns:
+    48px
+    minmax(0, 1fr)
+    48px;
+
   align-items: center;
-  justify-content: space-between;
 
-  gap: 1rem;
+  gap: 16px;
 }
 
 .concept-slide {
-  flex: 1;
-  min-width: 0;
+  min-height: 220px;
 
-  padding: 1.5rem;
+  padding:
+    clamp(18px, 4vw, 28px);
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 
   border:
-    1px solid rgba(92, 225, 230, 0.34);
+    1px solid
+    rgba(92, 225, 230, 0.34);
 
-  border-radius: 1rem;
+  border-radius: 16px;
+
+  text-align: center;
 
   background:
     linear-gradient(
       145deg,
-      rgba(92, 225, 230, 0.075),
-      rgba(178, 109, 255, 0.045)
+      rgba(92, 225, 230, 0.055),
+      rgba(178, 109, 255, 0.07)
     );
 
-  text-align: center;
-
   box-shadow:
-    inset 0 0 18px rgba(92, 225, 230, 0.13),
-    0 0 18px rgba(178, 109, 255, 0.21);
+    inset 0 0 22px
+      rgba(92, 225, 230, 0.07),
+    0 0 22px
+      rgba(178, 109, 255, 0.15);
 }
 
 .concept-slide h3 {
-  margin-bottom: 1rem;
+  margin:
+    0
+    0
+    17px;
 
   color: var(--verde);
 
-  font-size: 1.25rem;
+  font-size:
+    clamp(1.05rem, 2.6vw, 1.35rem);
 
   text-shadow:
-    0 0 8px rgba(60, 252, 163, 0.9),
-    0 0 20px rgba(92, 225, 230, 0.68);
+    0 0 9px rgba(60, 252, 163, 0.80),
+    0 0 20px rgba(92, 225, 230, 0.42);
 }
 
 .concept-slide p {
-  margin-bottom: 1.2rem;
+  margin:
+    0
+    0
+    18px;
 
-  color: var(--texto-modal);
+  color: var(--texto-principal);
 
-  line-height: 1.65;
+  font-size:
+    clamp(0.76rem, 1.8vw, 0.93rem);
+
+  line-height: 1.75;
 }
 
 #conceptCounter {
-  display: inline-block;
+  color: var(--morado-claro);
 
-  color: var(--morado);
-
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 700;
-  letter-spacing: 0.15em;
 
-  text-shadow:
-    0 0 8px rgba(178, 109, 255, 0.55);
+  letter-spacing: 0.16em;
 }
 
 
@@ -815,291 +834,209 @@ audio {
 .slide-arrow {
   width: 46px;
   height: 46px;
-  flex: 0 0 46px;
 
-  display: grid;
-  place-items: center;
+  padding: 0;
+
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
 
   border:
-    2px solid var(--cyan);
+    2px solid
+    var(--cyan);
 
   border-radius: 50%;
 
+  cursor: pointer;
+
+  color: var(--cyan);
+
   background:
-    rgba(2, 4, 10, 0.75);
+    rgba(3, 12, 23, 0.80);
 
-  color:
-    var(--cyan);
+  font-family:
+    Arial,
+    sans-serif;
 
-  cursor:
-    pointer;
-
-  font-size:
-    2rem;
-
-  line-height:
-    1;
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
 
   box-shadow:
-    0 0 12px rgba(92, 225, 230, 0.75),
-    inset 0 0 12px rgba(92, 225, 230, 0.18);
+    0 0 12px
+      rgba(92, 225, 230, 0.62),
+    inset 0 0 12px
+      rgba(92, 225, 230, 0.11);
 
   transition:
-    transform 0.2s ease,
-    color 0.2s ease,
-    border-color 0.2s ease,
-    box-shadow 0.2s ease;
+    transform 0.18s ease,
+    color 0.18s ease,
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
 }
 
-.slide-arrow:hover,
-.slide-arrow:focus-visible {
+.slide-arrow:hover {
+  transform: scale(1.1);
+
   color: var(--verde);
 
   border-color: var(--verde);
 
-  transform: scale(1.08);
-
   box-shadow:
-    0 0 18px rgba(60, 252, 163, 0.82),
-    inset 0 0 16px rgba(60, 252, 163, 0.20);
-
-  outline: none;
-}
-
-.slide-arrow:active {
-  transform: scale(0.96);
+    0 0 17px
+      rgba(60, 252, 163, 0.80),
+    inset 0 0 14px
+      rgba(60, 252, 163, 0.13);
 }
 
 
 /* ==========================================================
-   BARRA DE DESPLAZAMIENTO DEL MODAL
-   ========================================================== */
-
-.modal {
-  scrollbar-width: thin;
-  scrollbar-color:
-    var(--cyan)
-    rgba(2, 4, 10, 0.6);
-}
-
-.modal::-webkit-scrollbar {
-  width: 8px;
-}
-
-.modal::-webkit-scrollbar-track {
-  background:
-    rgba(2, 4, 10, 0.6);
-}
-
-.modal::-webkit-scrollbar-thumb {
-  border-radius: 999px;
-
-  background:
-    linear-gradient(
-      var(--cyan),
-      var(--morado)
-    );
-}
-
-
-/* ==========================================================
-   DISEÑO RESPONSIVO: TABLETS
+   RESPONSIVE: TABLETS
    ========================================================== */
 
 @media (max-width: 768px) {
-  body {
-    overflow-y: auto;
-  }
-
   .menu-content {
     padding:
-      2.5rem
-      1.25rem
-      1.5rem;
-  }
-
-  .menu-header {
-    margin-bottom:
-      1.5rem;
+      38px
+      22px
+      28px;
   }
 
   .menu-main {
     padding:
-      3rem
+      48px
       0;
+  }
 
-    transform:
-      none;
+  .ducks-container {
+    gap: 18px;
   }
 
   .menu-footer {
-    flex-direction:
-      column;
+    flex-direction: column;
 
-    gap:
-      1rem;
+    max-width: 420px;
   }
 
-  .menu-footer .btn {
-    width:
-      min(360px, 100%);
-
-    margin:
-      0;
+  .btn-secondary {
+    width: 100%;
   }
 }
 
 
 /* ==========================================================
-   DISEÑO RESPONSIVO: CELULARES
+   RESPONSIVE: CELULARES
    ========================================================== */
 
 @media (max-width: 520px) {
   .menu-content {
     padding:
-      1.8rem
-      1rem
-      1.2rem;
+      32px
+      16px
+      22px;
   }
 
   .game-title {
     font-size:
-      clamp(1.55rem, 8vw, 2rem);
+      clamp(1.5rem, 8.3vw, 2.25rem);
 
-    line-height:
-      1.45;
-
-    letter-spacing:
-      0.04em;
+    line-height: 1.45;
   }
 
-  .ducks-container {
-    flex-direction:
-      column;
-
-    gap:
-      1rem;
-  }
-
-  .duck {
-    font-size:
-      2.4rem;
-  }
-
-  .btn-start {
-    width:
-      min(320px, 88vw);
-
-    min-width:
-      0;
-
-    padding:
-      1.35rem
-      2rem;
-
-    font-size:
-      1.15rem;
-  }
-
-  .concept-slider {
-    gap:
-      0.45rem;
-  }
-
-  .concept-slide {
-    padding:
-      1rem
-      0.75rem;
-  }
-
-  .concept-slide h3 {
-    font-size:
-      1.05rem;
-  }
-
-  .concept-slide p {
-    font-size:
-      0.83rem;
-
-    line-height:
-      1.5;
-  }
-
-  .slide-arrow {
-    width:
-      38px;
-
-    height:
-      38px;
-
-    flex-basis:
-      38px;
-
-    font-size:
-      1.6rem;
-  }
-
-  .modal-body {
-    padding:
-      0.9rem;
-
-    font-size:
-      0.84rem;
-  }
-}
-
-
-/* ==========================================================
-   PANTALLAS MUY BAJAS
-   ========================================================== */
-
-@media (max-height: 700px) and (min-width: 769px) {
-  .menu-content {
-    padding-top:
-      2rem;
-  }
-
-  .menu-header {
-    margin-bottom:
-      1rem;
+  .game-subtitle {
+    font-size: 0.76rem;
   }
 
   .menu-main {
-    transform:
-      translateY(-20px);
+    padding:
+      45px
+      0;
   }
 
-  .game-title {
-    font-size:
-      clamp(2rem, 5vw, 4rem);
+  .ducks-container {
+    display: grid;
+    grid-template-columns:
+      1fr
+      1fr;
+
+    gap: 20px 12px;
   }
 
   .btn-start {
+    grid-column: 1 / -1;
+    grid-row: 1;
+
+    width: 100%;
+    min-width: 0;
+
     padding:
       1.25rem
-      4rem;
+      1.2rem;
+
+    font-size: 1rem;
+  }
+
+  .duck {
+    grid-row: 2;
+
+    justify-self: center;
+  }
+
+  .modal-overlay {
+    padding: 12px;
+  }
+
+  .modal {
+    max-height:
+      calc(100vh - 24px);
+
+    border-radius: 15px;
+  }
+
+  .modal-header,
+  .modal-body,
+  .modal-footer {
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+
+  .concept-slider {
+    grid-template-columns:
+      40px
+      minmax(0, 1fr)
+      40px;
+
+    gap: 8px;
+  }
+
+  .slide-arrow {
+    width: 38px;
+    height: 38px;
+
+    font-size: 1.55rem;
+  }
+
+  .concept-slide {
+    min-height: 250px;
+
+    padding: 16px 12px;
   }
 }
 
 
 /* ==========================================================
-   REDUCIR ANIMACIONES POR ACCESIBILIDAD
+   REDUCCIÓN DE MOVIMIENTO
    ========================================================== */
 
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
   *::after {
-    scroll-behavior:
-      auto !important;
+    scroll-behavior: auto !important;
 
-    animation-duration:
-      0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
 
-    animation-iteration-count:
-      1 !important;
-
-    transition-duration:
-      0.01ms !important;
+    transition-duration: 0.01ms !important;
   }
 }

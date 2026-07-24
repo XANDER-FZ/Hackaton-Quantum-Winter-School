@@ -1,293 +1,402 @@
-// =======================================
-// Pantalla de inicio - Buscaminas Quaktico
-// =======================================
+// ============================================================
+// BUSCAMINAS QUAKTICO — PANTALLA DE INICIO
+// ============================================================
+//
+// Este archivo controla únicamente:
+//
+// 1. El botón START.
+// 2. Los sonidos de la pantalla inicial.
+// 3. Los modales de Indicaciones y Conceptos.
+// 4. El carrusel de conceptos básicos.
+//
+// La lógica del juego se ejecuta en NiceGUI mediante la ruta:
+//
+// /juego
+//
+// ============================================================
+
 
 document.addEventListener("DOMContentLoaded", () => {
-  // =====================================
-  // REFERENCIAS DEL MENÚ
-  // =====================================
+  // ==========================================================
+  // ELEMENTOS PRINCIPALES
+  // ==========================================================
 
   const startBtn = document.getElementById("start-btn");
 
-  const indicacionesBtn =
-    document.getElementById("indicaciones-btn");
+  const indicacionesBtn = document.getElementById(
+    "indicaciones-btn"
+  );
 
-  const conceptosBtn =
-    document.getElementById("conceptos-btn");
+  const conceptosBtn = document.getElementById(
+    "conceptos-btn"
+  );
+
+  const indicacionesModal = document.getElementById(
+    "indicaciones-modal"
+  );
+
+  const conceptosModal = document.getElementById(
+    "conceptos-modal"
+  );
+
+  const modalCloseButtons = document.querySelectorAll(
+    "[data-close]"
+  );
+
+  const startSound = document.getElementById(
+    "start-sound"
+  );
+
+  const secSound = document.getElementById(
+    "sec-sound"
+  );
+
+  const prevConceptBtn = document.getElementById(
+    "prevConcept"
+  );
+
+  const nextConceptBtn = document.getElementById(
+    "nextConcept"
+  );
+
+  const conceptTitle = document.getElementById(
+    "conceptTitle"
+  );
+
+  const conceptDescription = document.getElementById(
+    "conceptDescription"
+  );
+
+  const conceptCounter = document.getElementById(
+    "conceptCounter"
+  );
 
 
-  // =====================================
-  // REFERENCIAS DE LOS MODALES
-  // =====================================
-
-  const indicacionesModal =
-    document.getElementById("indicaciones-modal");
-
-  const conceptosModal =
-    document.getElementById("conceptos-modal");
-
-  const modalCloseButtons =
-    document.querySelectorAll("[data-close]");
-
-
-  // =====================================
-  // REFERENCIAS DE AUDIO
-  // =====================================
-
-  const startSound =
-    document.getElementById("start-sound");
-
-  const secSound =
-    document.getElementById("sec-sound");
-
-
-  // =====================================
-  // FUNCIONES DE SONIDO
-  // =====================================
+  // ==========================================================
+  // REPRODUCCIÓN SEGURA DE AUDIO
+  // ==========================================================
 
   /**
-   * Reproduce un elemento de audio desde el inicio.
+   * Reproduce un elemento de audio sin detener el programa
+   * cuando el navegador bloquea la reproducción.
    *
-   * La función evita errores si el audio no existe o
-   * si el navegador bloquea temporalmente la reproducción.
+   * @param {HTMLAudioElement | null} audioElement
    */
-  function reproducirSonido(audio) {
-    if (!(audio instanceof HTMLAudioElement)) {
-      console.warn("No se encontró el elemento de audio.");
+  function reproducirAudio(audioElement) {
+    if (!(audioElement instanceof HTMLAudioElement)) {
       return;
     }
 
-    audio.pause();
-    audio.currentTime = 0;
+    audioElement.currentTime = 0;
 
-    const reproduccion = audio.play();
+    const reproduccion = audioElement.play();
 
-    if (reproduccion !== undefined) {
+    if (
+      reproduccion
+      && typeof reproduccion.catch === "function"
+    ) {
       reproduccion.catch((error) => {
         console.warn(
-          "El navegador no pudo reproducir el sonido:",
-          error,
+          "No se pudo reproducir el audio:",
+          error
         );
       });
     }
   }
 
 
-  function reproducirSonidoSecundario() {
-    reproducirSonido(secSound);
-  }
+  // ==========================================================
+  // NAVEGACIÓN HACIA LA PARTIDA
+  // ==========================================================
 
+  function iniciarPartida() {
+    if (!startBtn) {
+      return;
+    }
 
-  // =====================================
-  // NAVEGACIÓN HACIA NICEGUI
-  // =====================================
-
-  startBtn?.addEventListener("click", () => {
-    // Evita pulsar START varias veces rápidamente.
+    // Impide que el usuario pulse varias veces el botón.
     startBtn.disabled = true;
+    startBtn.setAttribute("aria-busy", "true");
 
-    reproducirSonido(startSound);
+    reproducirAudio(startSound);
 
-    /*
-     * Se espera medio segundo para escuchar el efecto
-     * antes de abrir la ventana del juego.
-     */
+    // Dejamos un pequeño tiempo para escuchar el sonido.
     window.setTimeout(() => {
       window.location.assign("/juego");
     }, 500);
+  }
+
+
+  if (startBtn) {
+    startBtn.addEventListener(
+      "click",
+      iniciarPartida
+    );
+  }
+
+
+  // ==========================================================
+  // FUNCIONES DE LOS MODALES
+  // ==========================================================
+
+  /**
+   * Abre un modal.
+   *
+   * @param {HTMLElement | null} modalElement
+   */
+  function abrirModal(modalElement) {
+    if (!modalElement) {
+      return;
+    }
+
+    reproducirAudio(secSound);
+
+    modalElement.style.display = "flex";
+    modalElement.setAttribute(
+      "aria-hidden",
+      "false"
+    );
+
+    document.body.classList.add(
+      "modal-abierto"
+    );
+  }
+
+
+  /**
+   * Cierra un modal.
+   *
+   * @param {HTMLElement | null} modalElement
+   */
+  function cerrarModal(modalElement) {
+    if (!modalElement) {
+      return;
+    }
+
+    reproducirAudio(secSound);
+
+    modalElement.style.display = "none";
+    modalElement.setAttribute(
+      "aria-hidden",
+      "true"
+    );
+
+    const existeModalVisible = [
+      indicacionesModal,
+      conceptosModal
+    ].some(
+      (modal) => (
+        modal
+        && modal.style.display === "flex"
+      )
+    );
+
+    if (!existeModalVisible) {
+      document.body.classList.remove(
+        "modal-abierto"
+      );
+    }
+  }
+
+
+  if (indicacionesBtn) {
+    indicacionesBtn.addEventListener(
+      "click",
+      () => {
+        abrirModal(indicacionesModal);
+      }
+    );
+  }
+
+
+  if (conceptosBtn) {
+    conceptosBtn.addEventListener(
+      "click",
+      () => {
+        abrirModal(conceptosModal);
+      }
+    );
+  }
+
+
+  modalCloseButtons.forEach((button) => {
+    button.addEventListener(
+      "click",
+      () => {
+        const modalId = button.getAttribute(
+          "data-close"
+        );
+
+        if (!modalId) {
+          return;
+        }
+
+        const modalElement = document.getElementById(
+          modalId
+        );
+
+        cerrarModal(modalElement);
+      }
+    );
   });
 
 
-  // =====================================
-  // FUNCIONES DE MODALES
-  // =====================================
-
-  function abrirModal(modal) {
+  // Cerrar al pulsar directamente sobre el fondo oscuro.
+  [
+    indicacionesModal,
+    conceptosModal
+  ].forEach((modal) => {
     if (!modal) {
       return;
     }
 
-    modal.style.display = "flex";
-  }
-
-
-  function cerrarModal(modal) {
-    if (!modal) {
-      return;
-    }
-
-    modal.style.display = "none";
-  }
-
-
-  // =====================================
-  // BOTONES PARA ABRIR MODALES
-  // =====================================
-
-  indicacionesBtn?.addEventListener("click", () => {
-    reproducirSonidoSecundario();
-    abrirModal(indicacionesModal);
+    modal.addEventListener(
+      "click",
+      (event) => {
+        if (event.target === modal) {
+          cerrarModal(modal);
+        }
+      }
+    );
   });
 
 
-  conceptosBtn?.addEventListener("click", () => {
-    reproducirSonidoSecundario();
-    abrirModal(conceptosModal);
-  });
-
-
-  // =====================================
-  // BOTONES PARA CERRAR MODALES
-  // =====================================
-
-  modalCloseButtons.forEach((boton) => {
-    boton.addEventListener("click", () => {
-      reproducirSonidoSecundario();
-
-      const modalId =
-        boton.getAttribute("data-close");
-
-      if (!modalId) {
+  // Cerrar el modal mediante la tecla Escape.
+  document.addEventListener(
+    "keydown",
+    (event) => {
+      if (event.key !== "Escape") {
         return;
       }
 
-      const modal =
-        document.getElementById(modalId);
-
-      cerrarModal(modal);
-    });
-  });
-
-
-  // Cerrar al hacer clic en el fondo oscuro.
-  [indicacionesModal, conceptosModal].forEach((modal) => {
-    modal?.addEventListener("click", (evento) => {
-      if (evento.target === modal) {
-        cerrarModal(modal);
+      if (
+        conceptosModal
+        && conceptosModal.style.display === "flex"
+      ) {
+        cerrarModal(conceptosModal);
+        return;
       }
-    });
-  });
 
-
-  // Cerrar al presionar Escape.
-  document.addEventListener("keydown", (evento) => {
-    if (evento.key === "Escape") {
-      cerrarModal(indicacionesModal);
-      cerrarModal(conceptosModal);
+      if (
+        indicacionesModal
+        && indicacionesModal.style.display === "flex"
+      ) {
+        cerrarModal(indicacionesModal);
+      }
     }
-  });
+  );
 
 
-  // =====================================
-  // DATOS DEL CARRUSEL DE CONCEPTOS
-  // =====================================
+  // ==========================================================
+  // CONCEPTOS BÁSICOS
+  // ==========================================================
 
   const conceptos = [
     {
       titulo: "Qubit",
       descripcion:
-        "Unidad básica de información cuántica. Puede representar 0, 1 o una combinación antes de medirse.",
+        "Es la unidad básica de información cuántica. "
+        + "Antes de medirse puede representar una "
+        + "combinación de los estados 0 y 1."
     },
     {
       titulo: "Superposición",
       descripcion:
-        "Un qubit puede estar en varias posibilidades al mismo tiempo hasta que se realiza una medición.",
+        "Permite que un sistema cuántico mantenga "
+        + "varias posibilidades al mismo tiempo "
+        + "antes de realizar una medición."
     },
     {
       titulo: "Entrelazamiento",
       descripcion:
-        "Dos qubits pueden estar conectados de forma que sus resultados estén relacionados.",
+        "Relaciona el estado de dos o más qubits. "
+        + "La información de uno puede quedar "
+        + "vinculada con la de los demás."
     },
     {
       titulo: "Interferencia",
       descripcion:
-        "Las probabilidades pueden reforzarse o cancelarse para favorecer ciertos resultados.",
+        "Las amplitudes cuánticas pueden reforzarse "
+        + "o cancelarse, modificando las "
+        + "probabilidades de los resultados."
     },
     {
       titulo: "Medición",
       descripcion:
-        "La medición convierte un estado cuántico en un resultado clásico, como 0 o 1.",
+        "Convierte el estado cuántico en un resultado "
+        + "clásico observable. En el juego, permite "
+        + "descubrir si una casilla es segura."
     },
     {
       titulo: "Compuerta cuántica",
       descripcion:
-        "Es una operación que transforma el estado de un qubit. Ejemplos: H, X, Y y Z.",
-    },
+        "Es una operación que transforma un estado "
+        + "cuántico. El juego utiliza compuertas como "
+        + "H, X, RX, RY y CNOT."
+    }
   ];
 
+  let indiceConcepto = 0;
 
-  // =====================================
-  // REFERENCIAS DEL CARRUSEL
-  // =====================================
-
-  let conceptoActual = 0;
-
-  const conceptTitle =
-    document.getElementById("conceptTitle");
-
-  const conceptDescription =
-    document.getElementById("conceptDescription");
-
-  const conceptCounter =
-    document.getElementById("conceptCounter");
-
-  const botonAnterior =
-    document.getElementById("prevConcept");
-
-  const botonSiguiente =
-    document.getElementById("nextConcept");
-
-
-  // =====================================
-  // ACTUALIZACIÓN DEL CARRUSEL
-  // =====================================
 
   function actualizarConcepto() {
-    const concepto = conceptos[conceptoActual];
-
-    if (conceptTitle) {
-      conceptTitle.textContent =
-        concepto.titulo;
+    if (
+      !conceptTitle
+      || !conceptDescription
+      || !conceptCounter
+    ) {
+      return;
     }
 
-    if (conceptDescription) {
-      conceptDescription.textContent =
-        concepto.descripcion;
-    }
+    const concepto = conceptos[indiceConcepto];
 
-    if (conceptCounter) {
-      conceptCounter.textContent =
-        `${conceptoActual + 1} / ${conceptos.length}`;
-    }
+    conceptTitle.textContent = concepto.titulo;
+
+    conceptDescription.textContent =
+      concepto.descripcion;
+
+    conceptCounter.textContent =
+      `${indiceConcepto + 1} / ${conceptos.length}`;
   }
 
 
-  // Siguiente concepto.
-  botonSiguiente?.addEventListener("click", () => {
-    reproducirSonidoSecundario();
+  function mostrarConceptoSiguiente() {
+    indiceConcepto = (
+      indiceConcepto + 1
+    ) % conceptos.length;
 
-    conceptoActual =
-      (conceptoActual + 1) % conceptos.length;
-
+    reproducirAudio(secSound);
     actualizarConcepto();
-  });
+  }
 
 
-  // Concepto anterior.
-  botonAnterior?.addEventListener("click", () => {
-    reproducirSonidoSecundario();
+  function mostrarConceptoAnterior() {
+    indiceConcepto = (
+      indiceConcepto - 1
+      + conceptos.length
+    ) % conceptos.length;
 
-    conceptoActual =
-      (
-        conceptoActual
-        - 1
-        + conceptos.length
-      ) % conceptos.length;
-
+    reproducirAudio(secSound);
     actualizarConcepto();
-  });
+  }
 
 
-  // Mostrar el primer concepto al cargar.
+  if (nextConceptBtn) {
+    nextConceptBtn.addEventListener(
+      "click",
+      mostrarConceptoSiguiente
+    );
+  }
+
+
+  if (prevConceptBtn) {
+    prevConceptBtn.addEventListener(
+      "click",
+      mostrarConceptoAnterior
+    );
+  }
+
+
+  // Mostrar el primer concepto al cargar la página.
   actualizarConcepto();
 });

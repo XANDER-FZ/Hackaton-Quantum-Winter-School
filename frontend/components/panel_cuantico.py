@@ -1,196 +1,495 @@
-from collections.abc import Callable
+from collections.abc import Callable, Collection
+from dataclasses import dataclass
 
 from nicegui import ui
 
+
+# ============================================================
+# TIPOS DE FUNCIONES RECIBIDAS
+# ============================================================
 
 ManejadorCompuerta = Callable[[str], None]
 AccionSinParametros = Callable[[], None]
 
 
+# ============================================================
+# INFORMACIÓN VISUAL DE LAS COMPUERTAS
+# ============================================================
+
+@dataclass(frozen=True, slots=True)
+class CompuertaVisual:
+    """Información necesaria para mostrar una compuerta."""
+
+    codigo: str
+    simbolo: str
+    nombre: str
+    descripcion: str
+    casillas_requeridas: int
+
+
+COMPUERTAS: tuple[CompuertaVisual, ...] = (
+    CompuertaVisual(
+        codigo="H",
+        simbolo="H",
+        nombre="Hadamard",
+        descripcion=(
+            "Genera interferencia entre dos casillas."
+        ),
+        casillas_requeridas=2,
+    ),
+    CompuertaVisual(
+        codigo="X",
+        simbolo="X",
+        nombre="Pauli-X",
+        descripcion=(
+            "Intercambia el riesgo entre dos casillas."
+        ),
+        casillas_requeridas=2,
+    ),
+    CompuertaVisual(
+        codigo="RX",
+        simbolo="RX",
+        nombre="Rotación-X",
+        descripcion=(
+            "Busca automáticamente una casilla asociada "
+            "para modificar el riesgo."
+        ),
+        casillas_requeridas=1,
+    ),
+    CompuertaVisual(
+        codigo="RY",
+        simbolo="RY",
+        nombre="Rotación-Y",
+        descripcion=(
+            "Busca una rotación que intente reducir "
+            "el riesgo de la casilla elegida."
+        ),
+        casillas_requeridas=1,
+    ),
+    CompuertaVisual(
+        codigo="CNOT",
+        simbolo="CX",
+        nombre="CNOT",
+        descripcion=(
+            "Usa dos casillas como control y dos "
+            "como objetivo."
+        ),
+        casillas_requeridas=4,
+    ),
+)
+
+
+# ============================================================
+# COMPONENTE PRINCIPAL
+# ============================================================
+
 def crear_panel_cuantico(
+    *,
+    compuerta_seleccionada: str | None,
+    casillas_seleccionadas: Collection[int],
+    puede_usar_compuerta: bool,
+    esperando_medicion: bool,
+    partida_terminada: bool,
+    riesgo_seleccionado: float | None,
     al_seleccionar_compuerta: ManejadorCompuerta,
     al_ejecutar_analisis: AccionSinParametros,
 ) -> None:
-    """Construye el panel lateral de herramientas cuánticas."""
+    """
+    Construye el panel lateral de herramientas cuánticas.
 
-    with ui.element('aside').classes('panel-cuantico'):
+    Este componente no modifica directamente el motor.
+    Solamente muestra el estado y comunica las acciones
+    seleccionadas por el usuario.
+    """
 
-        crear_cabecera_panel()
-        crear_panel_compuertas(al_seleccionar_compuerta)
-        crear_panel_probabilidad()
-        crear_panel_circuito()
+    with ui.element("aside").classes("panel-cuantico"):
 
-        ui.button(
-            'EJECUTAR ANÁLISIS',
-            icon='play_arrow',
-            on_click=al_ejecutar_analisis,
-        ).props(
-            'unelevated no-caps'
-        ).classes(
-            'boton-ejecutar'
+        crear_cabecera_panel(
+            puede_usar_compuerta=puede_usar_compuerta,
+            esperando_medicion=esperando_medicion,
+            partida_terminada=partida_terminada,
+        )
+
+        crear_panel_compuertas(
+            compuerta_seleccionada=compuerta_seleccionada,
+            puede_usar_compuerta=puede_usar_compuerta,
+            partida_terminada=partida_terminada,
+            al_seleccionar_compuerta=al_seleccionar_compuerta,
+        )
+
+        crear_panel_probabilidad(
+            riesgo_seleccionado=riesgo_seleccionado,
+        )
+
+        crear_panel_operacion(
+            compuerta_seleccionada=compuerta_seleccionada,
+            casillas_seleccionadas=casillas_seleccionadas,
+            esperando_medicion=esperando_medicion,
+        )
+
+        crear_boton_ejecutar(
+            compuerta_seleccionada=compuerta_seleccionada,
+            casillas_seleccionadas=casillas_seleccionadas,
+            puede_usar_compuerta=puede_usar_compuerta,
+            partida_terminada=partida_terminada,
+            al_ejecutar_analisis=al_ejecutar_analisis,
         )
 
 
-def crear_cabecera_panel() -> None:
-    """Crea el título del panel cuántico."""
+# ============================================================
+# CABECERA
+# ============================================================
 
-    with ui.row().classes('cabecera-panel-cuantico'):
+def crear_cabecera_panel(
+    *,
+    puede_usar_compuerta: bool,
+    esperando_medicion: bool,
+    partida_terminada: bool,
+) -> None:
+    """Crea el título y el mensaje superior del panel."""
 
+    if partida_terminada:
+        mensaje = "La partida ha terminado."
+
+    elif esperando_medicion:
+        mensaje = "Compuerta aplicada. Ahora debes medir."
+
+    elif puede_usar_compuerta:
+        mensaje = "Selecciona una herramienta de exploración."
+
+    else:
+        mensaje = "Realiza primero la medición inicial segura."
+
+    with ui.row().classes(
+        "cabecera-panel-cuantico"
+    ):
         ui.icon(
-            'psychology'
+            "psychology"
         ).classes(
-            'icono-panel-cuantico'
+            "icono-panel-cuantico"
         )
 
-        with ui.column().classes('gap-0'):
+        with ui.column().classes("gap-0"):
             ui.label(
-                'Panel cuántico'
+                "Panel cuántico"
             ).classes(
-                'titulo-seccion'
+                "titulo-seccion"
             )
 
             ui.label(
-                'Herramientas de exploración'
+                mensaje
             ).classes(
-                'descripcion-seccion'
+                "descripcion-seccion"
             )
 
+
+# ============================================================
+# PANEL DE COMPUERTAS
+# ============================================================
 
 def crear_panel_compuertas(
+    *,
+    compuerta_seleccionada: str | None,
+    puede_usar_compuerta: bool,
+    partida_terminada: bool,
     al_seleccionar_compuerta: ManejadorCompuerta,
 ) -> None:
-    """Crea la lista visual de compuertas disponibles."""
+    """Muestra todas las compuertas disponibles."""
 
-    compuertas = [
-        ('H', 'Hadamard'),
-        ('X', 'Pauli-X'),
-        ('Z', 'Pauli-Z'),
-        ('CX', 'CNOT'),
-    ]
-
-    with ui.element('div').classes('bloque-panel'):
+    with ui.element("div").classes("bloque-panel"):
 
         crear_titulo_bloque(
-            icono='memory',
-            titulo='Compuertas',
+            icono="memory",
+            titulo="Compuertas",
         )
 
         ui.label(
-            'Herramientas disponibles para analizar las casillas.'
+            "Elige una compuerta y luego selecciona "
+            "las casillas necesarias."
         ).classes(
-            'texto-bloque'
+            "texto-bloque"
         )
 
-        with ui.column().classes('lista-compuertas'):
-            for simbolo, nombre in compuertas:
+        with ui.column().classes("lista-compuertas"):
+
+            for compuerta in COMPUERTAS:
                 crear_boton_compuerta(
-                    simbolo=simbolo,
-                    nombre=nombre,
+                    compuerta=compuerta,
+                    esta_seleccionada=(
+                        compuerta.codigo
+                        == compuerta_seleccionada
+                    ),
+                    esta_habilitada=(
+                        puede_usar_compuerta
+                        and not partida_terminada
+                    ),
                     al_seleccionar=al_seleccionar_compuerta,
                 )
 
 
 def crear_boton_compuerta(
-    simbolo: str,
-    nombre: str,
+    *,
+    compuerta: CompuertaVisual,
+    esta_seleccionada: bool,
+    esta_habilitada: bool,
     al_seleccionar: ManejadorCompuerta,
 ) -> None:
-    """Crea un botón individual de compuerta."""
+    """Crea el botón de una compuerta individual."""
 
-    ui.button(
-        f'{simbolo}  {nombre}',
-        on_click=lambda _evento, nombre_compuerta=nombre:
-            al_seleccionar(nombre_compuerta),
+    clases = "boton-compuerta"
+
+    if esta_seleccionada:
+        clases += " boton-compuerta-activa"
+
+    if not esta_habilitada:
+        clases += " boton-compuerta-bloqueada"
+
+    boton = ui.button(
+        f"{compuerta.simbolo}  {compuerta.nombre}",
+        on_click=lambda _evento, codigo=compuerta.codigo:
+            al_seleccionar(codigo),
     ).props(
-        'unelevated no-caps'
+        "unelevated no-caps"
     ).classes(
-        'boton-compuerta'
+        clases
+    ).tooltip(
+        (
+            f"{compuerta.descripcion} "
+            f"Requiere "
+            f"{compuerta.casillas_requeridas} casilla(s)."
+        )
     )
 
+    if not esta_habilitada:
+        boton.disable()
 
-def crear_panel_probabilidad() -> None:
-    """Crea la visualización provisional de probabilidad."""
 
-    with ui.element('div').classes('bloque-panel'):
+# ============================================================
+# PANEL DE PROBABILIDAD
+# ============================================================
+
+def crear_panel_probabilidad(
+    *,
+    riesgo_seleccionado: float | None,
+) -> None:
+    """Muestra el riesgo de la casilla activa."""
+
+    if riesgo_seleccionado is None:
+        etiqueta = "Sin casilla seleccionada"
+        porcentaje = "-- %"
+        progreso = 0.0
+
+    else:
+        riesgo_normalizado = max(
+            0.0,
+            min(1.0, float(riesgo_seleccionado)),
+        )
+
+        etiqueta = "Riesgo estimado"
+        porcentaje = f"{riesgo_normalizado * 100:.1f}%"
+        progreso = riesgo_normalizado
+
+    with ui.element("div").classes("bloque-panel"):
 
         crear_titulo_bloque(
-            icono='query_stats',
-            titulo='Probabilidad',
+            icono="query_stats",
+            titulo="Probabilidad",
         )
 
         ui.label(
-            'Riesgo estimado de la casilla seleccionada'
+            "Probabilidad actual de que la casilla "
+            "seleccionada contenga una mina."
         ).classes(
-            'texto-bloque'
+            "texto-bloque"
         )
 
-        with ui.row().classes('fila-probabilidad'):
+        with ui.row().classes("fila-probabilidad"):
             ui.label(
-                'Sin analizar'
+                etiqueta
             ).classes(
-                'valor-probabilidad'
+                "valor-probabilidad"
             )
 
             ui.label(
-                '-- %'
+                porcentaje
             ).classes(
-                'porcentaje-probabilidad'
+                "porcentaje-probabilidad"
             )
 
         ui.linear_progress(
-            value=0,
+            value=progreso,
         ).props(
-            'rounded'
+            "rounded"
         ).classes(
-            'barra-probabilidad'
+            "barra-probabilidad"
         )
 
 
-def crear_panel_circuito() -> None:
-    """Crea el espacio provisional para el circuito."""
+# ============================================================
+# RESUMEN DE LA OPERACIÓN
+# ============================================================
 
-    with ui.element('div').classes('bloque-panel'):
+def crear_panel_operacion(
+    *,
+    compuerta_seleccionada: str | None,
+    casillas_seleccionadas: Collection[int],
+    esperando_medicion: bool,
+) -> None:
+    """Muestra la operación que se está preparando."""
+
+    compuerta = buscar_compuerta(
+        compuerta_seleccionada
+    )
+
+    if esperando_medicion:
+        titulo_operacion = "Operación aplicada"
+        detalle = (
+            "Selecciona una casilla del tablero "
+            "para realizar la medición."
+        )
+        icono = "done_all"
+
+    elif compuerta is None:
+        titulo_operacion = "Sin operación"
+        detalle = (
+            "Selecciona una compuerta para "
+            "preparar el análisis."
+        )
+        icono = "device_hub"
+
+    else:
+        cantidad_actual = len(
+            casillas_seleccionadas
+        )
+
+        cantidad_necesaria = (
+            compuerta.casillas_requeridas
+        )
+
+        titulo_operacion = (
+            f"{compuerta.simbolo} — "
+            f"{compuerta.nombre}"
+        )
+
+        detalle = (
+            f"Casillas seleccionadas: "
+            f"{cantidad_actual}/"
+            f"{cantidad_necesaria}"
+        )
+
+        icono = "account_tree"
+
+    with ui.element("div").classes("bloque-panel"):
 
         crear_titulo_bloque(
-            icono='account_tree',
-            titulo='Circuito',
+            icono="account_tree",
+            titulo="Operación",
         )
 
-        with ui.element('div').classes('circuito-provisional'):
+        with ui.element("div").classes(
+            "circuito-provisional"
+        ):
             ui.icon(
-                'device_hub'
+                icono
             ).classes(
-                'icono-circuito'
+                "icono-circuito"
             )
 
             ui.label(
-                'Visualización del circuito'
+                titulo_operacion
             ).classes(
-                'texto-circuito'
+                "texto-circuito"
             )
 
             ui.label(
-                'Se conectará posteriormente con Qiskit'
+                detalle
             ).classes(
-                'detalle-circuito'
+                "detalle-circuito"
             )
+
+
+# ============================================================
+# BOTÓN EJECUTAR
+# ============================================================
+
+def crear_boton_ejecutar(
+    *,
+    compuerta_seleccionada: str | None,
+    casillas_seleccionadas: Collection[int],
+    puede_usar_compuerta: bool,
+    partida_terminada: bool,
+    al_ejecutar_analisis: AccionSinParametros,
+) -> None:
+    """Crea y configura el botón Ejecutar análisis."""
+
+    compuerta = buscar_compuerta(
+        compuerta_seleccionada
+    )
+
+    seleccion_completa = (
+        compuerta is not None
+        and len(casillas_seleccionadas)
+        == compuerta.casillas_requeridas
+    )
+
+    boton_habilitado = (
+        seleccion_completa
+        and puede_usar_compuerta
+        and not partida_terminada
+    )
+
+    boton = ui.button(
+        "EJECUTAR ANÁLISIS",
+        icon="play_arrow",
+        on_click=al_ejecutar_analisis,
+    ).props(
+        "unelevated no-caps"
+    ).classes(
+        "boton-ejecutar"
+    )
+
+    if not boton_habilitado:
+        boton.disable()
+
+
+# ============================================================
+# FUNCIONES AUXILIARES
+# ============================================================
+
+def buscar_compuerta(
+    codigo: str | None,
+) -> CompuertaVisual | None:
+    """Busca la configuración visual de una compuerta."""
+
+    if codigo is None:
+        return None
+
+    codigo_normalizado = codigo.strip().upper()
+
+    for compuerta in COMPUERTAS:
+        if compuerta.codigo == codigo_normalizado:
+            return compuerta
+
+    return None
 
 
 def crear_titulo_bloque(
+    *,
     icono: str,
     titulo: str,
 ) -> None:
     """Crea el encabezado reutilizable de un bloque."""
 
-    with ui.row().classes('titulo-bloque'):
+    with ui.row().classes("titulo-bloque"):
+
         ui.icon(
             icono
         ).classes(
-            'icono-bloque'
+            "icono-bloque"
         )
 
         ui.label(
             titulo
         ).classes(
-            'nombre-bloque'
+            "nombre-bloque"
         )
